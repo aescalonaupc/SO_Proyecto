@@ -29,3 +29,14 @@ C:\Users\marco\Desktop\3A\SO\Proyecto_Conjunto\SO_Proyecto\Cliente\Cliente\obj\D
 C:\Users\marco\Desktop\3A\SO\Proyecto_Conjunto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
 C:\Users\marco\Desktop\3A\SO\Proyecto_Conjunto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.exe
 C:\Users\marco\Desktop\3A\SO\Proyecto_Conjunto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.pdb
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe.config
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\bin\Debug\Cliente.pdb
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.AssemblyReference.cache
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.SuggestedBindingRedirects.cache
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.Geometry_wars.resources
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.Properties.Resources.resources
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.GenerateResource.cache
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.exe
+C:\SO\Proyecto\SO_Proyecto\Cliente\Cliente\obj\Debug\Cliente.pdb
