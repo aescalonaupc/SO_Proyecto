@@ -42,50 +42,50 @@ namespace Cliente
             this.edad = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.ejecutarBtn = new System.Windows.Forms.Button();
+            this.desconexion = new System.Windows.Forms.Button();
+            this.conexion = new System.Windows.Forms.Button();
+            this.ListaConectados = new System.Windows.Forms.Button();
+            this.ListaConectadosView = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.ListaConectadosView)).BeginInit();
             this.SuspendLayout();
             // 
             // usuario
             // 
-            this.usuario.Location = new System.Drawing.Point(191, 77);
-            this.usuario.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.usuario.Location = new System.Drawing.Point(286, 118);
             this.usuario.Name = "usuario";
-            this.usuario.Size = new System.Drawing.Size(133, 20);
+            this.usuario.Size = new System.Drawing.Size(198, 26);
             this.usuario.TabIndex = 0;
             // 
             // contraseña
             // 
-            this.contraseña.Location = new System.Drawing.Point(191, 133);
-            this.contraseña.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.contraseña.Location = new System.Drawing.Point(286, 205);
             this.contraseña.Name = "contraseña";
-            this.contraseña.Size = new System.Drawing.Size(133, 20);
+            this.contraseña.Size = new System.Drawing.Size(198, 26);
             this.contraseña.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(204, 53);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(306, 82);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(43, 13);
+            this.label2.Size = new System.Drawing.Size(64, 20);
             this.label2.TabIndex = 3;
             this.label2.Text = "Usuario";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(204, 107);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Location = new System.Drawing.Point(306, 165);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(61, 13);
+            this.label3.Size = new System.Drawing.Size(92, 20);
             this.label3.TabIndex = 4;
             this.label3.Text = "Contraseña";
             // 
             // login
             // 
-            this.login.Location = new System.Drawing.Point(200, 161);
-            this.login.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.login.Location = new System.Drawing.Point(300, 248);
             this.login.Name = "login";
-            this.login.Size = new System.Drawing.Size(100, 27);
+            this.login.Size = new System.Drawing.Size(150, 42);
             this.login.TabIndex = 5;
             this.login.Text = "Iniciar session";
             this.login.UseVisualStyleBackColor = true;
@@ -93,10 +93,9 @@ namespace Cliente
             // 
             // registration
             // 
-            this.registration.Location = new System.Drawing.Point(202, 201);
-            this.registration.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.registration.Location = new System.Drawing.Point(303, 309);
             this.registration.Name = "registration";
-            this.registration.Size = new System.Drawing.Size(98, 27);
+            this.registration.Size = new System.Drawing.Size(147, 42);
             this.registration.TabIndex = 6;
             this.registration.Text = "Registrarse";
             this.registration.UseVisualStyleBackColor = true;
@@ -105,10 +104,9 @@ namespace Cliente
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(48, 46);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(72, 71);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 13);
+            this.label1.Size = new System.Drawing.Size(80, 20);
             this.label1.TabIndex = 7;
             this.label1.Text = "Consultas";
             this.label1.Visible = false;
@@ -116,10 +114,9 @@ namespace Cliente
             // consulta1
             // 
             this.consulta1.AutoSize = true;
-            this.consulta1.Location = new System.Drawing.Point(51, 77);
-            this.consulta1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta1.Location = new System.Drawing.Point(76, 118);
             this.consulta1.Name = "consulta1";
-            this.consulta1.Size = new System.Drawing.Size(72, 17);
+            this.consulta1.Size = new System.Drawing.Size(106, 24);
             this.consulta1.TabIndex = 8;
             this.consulta1.TabStop = true;
             this.consulta1.Text = "Consulta1";
@@ -129,10 +126,9 @@ namespace Cliente
             // consulta2
             // 
             this.consulta2.AutoSize = true;
-            this.consulta2.Location = new System.Drawing.Point(51, 104);
-            this.consulta2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta2.Location = new System.Drawing.Point(76, 160);
             this.consulta2.Name = "consulta2";
-            this.consulta2.Size = new System.Drawing.Size(72, 17);
+            this.consulta2.Size = new System.Drawing.Size(106, 24);
             this.consulta2.TabIndex = 9;
             this.consulta2.TabStop = true;
             this.consulta2.Text = "Consulta2";
@@ -142,10 +138,9 @@ namespace Cliente
             // consulta3
             // 
             this.consulta3.AutoSize = true;
-            this.consulta3.Location = new System.Drawing.Point(51, 133);
-            this.consulta3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta3.Location = new System.Drawing.Point(76, 205);
             this.consulta3.Name = "consulta3";
-            this.consulta3.Size = new System.Drawing.Size(72, 17);
+            this.consulta3.Size = new System.Drawing.Size(106, 24);
             this.consulta3.TabIndex = 10;
             this.consulta3.TabStop = true;
             this.consulta3.Text = "Consulta3";
@@ -154,38 +149,84 @@ namespace Cliente
             // 
             // edad
             // 
-            this.edad.Location = new System.Drawing.Point(349, 133);
-            this.edad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.edad.Location = new System.Drawing.Point(524, 205);
             this.edad.Name = "edad";
-            this.edad.Size = new System.Drawing.Size(133, 20);
+            this.edad.Size = new System.Drawing.Size(198, 26);
             this.edad.TabIndex = 11;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(388, 102);
-            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Location = new System.Drawing.Point(582, 157);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(32, 13);
+            this.label4.Size = new System.Drawing.Size(47, 20);
             this.label4.TabIndex = 12;
             this.label4.Text = "Edad";
             // 
             // ejecutarBtn
             // 
-            this.ejecutarBtn.Location = new System.Drawing.Point(51, 165);
+            this.ejecutarBtn.Location = new System.Drawing.Point(76, 254);
+            this.ejecutarBtn.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ejecutarBtn.Name = "ejecutarBtn";
-            this.ejecutarBtn.Size = new System.Drawing.Size(84, 23);
+            this.ejecutarBtn.Size = new System.Drawing.Size(126, 35);
             this.ejecutarBtn.TabIndex = 13;
             this.ejecutarBtn.Text = "Ejecutar";
             this.ejecutarBtn.UseVisualStyleBackColor = true;
             this.ejecutarBtn.Visible = false;
             this.ejecutarBtn.Click += new System.EventHandler(this.button1_Click);
             // 
+            // desconexion
+            // 
+            this.desconexion.Location = new System.Drawing.Point(79, 316);
+            this.desconexion.Name = "desconexion";
+            this.desconexion.Size = new System.Drawing.Size(123, 35);
+            this.desconexion.TabIndex = 14;
+            this.desconexion.Text = "Desconexión";
+            this.desconexion.UseVisualStyleBackColor = true;
+            this.desconexion.Visible = false;
+            this.desconexion.Click += new System.EventHandler(this.desconexion_Click);
+            // 
+            // conexion
+            // 
+            this.conexion.Location = new System.Drawing.Point(286, 101);
+            this.conexion.Name = "conexion";
+            this.conexion.Size = new System.Drawing.Size(123, 59);
+            this.conexion.TabIndex = 15;
+            this.conexion.Text = "Volver a conectarte";
+            this.conexion.UseVisualStyleBackColor = true;
+            this.conexion.Visible = false;
+            this.conexion.Click += new System.EventHandler(this.conexion_Click);
+            // 
+            // ListaConectados
+            // 
+            this.ListaConectados.Location = new System.Drawing.Point(286, 29);
+            this.ListaConectados.Name = "ListaConectados";
+            this.ListaConectados.Size = new System.Drawing.Size(148, 33);
+            this.ListaConectados.TabIndex = 16;
+            this.ListaConectados.Text = "Lista Conectados";
+            this.ListaConectados.UseVisualStyleBackColor = true;
+            this.ListaConectados.Visible = false;
+            this.ListaConectados.Click += new System.EventHandler(this.ListaConectados_Click);
+            // 
+            // ListaConectadosView
+            // 
+            this.ListaConectadosView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.ListaConectadosView.Location = new System.Drawing.Point(286, 81);
+            this.ListaConectadosView.Name = "ListaConectadosView";
+            this.ListaConectadosView.RowHeadersWidth = 62;
+            this.ListaConectadosView.RowTemplate.Height = 28;
+            this.ListaConectadosView.Size = new System.Drawing.Size(240, 150);
+            this.ListaConectadosView.TabIndex = 17;
+            // 
             // Geometry_wars
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 292);
+            this.ClientSize = new System.Drawing.Size(800, 449);
+            this.Controls.Add(this.ListaConectadosView);
+            this.Controls.Add(this.ListaConectados);
+            this.Controls.Add(this.conexion);
+            this.Controls.Add(this.desconexion);
             this.Controls.Add(this.ejecutarBtn);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.edad);
@@ -199,10 +240,10 @@ namespace Cliente
             this.Controls.Add(this.label2);
             this.Controls.Add(this.contraseña);
             this.Controls.Add(this.usuario);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Geometry_wars";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Geometry_wars_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.ListaConectadosView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -223,6 +264,10 @@ namespace Cliente
         private System.Windows.Forms.TextBox edad;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button ejecutarBtn;
+        private System.Windows.Forms.Button desconexion;
+        private System.Windows.Forms.Button conexion;
+        private System.Windows.Forms.Button ListaConectados;
+        private System.Windows.Forms.DataGridView ListaConectadosView;
     }
 }
 

@@ -1,26 +1,11 @@
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <mysql.h>
+#include "servidor.h"
+#include "conectados.h"
+#include "main.h"
 
-#define PUERTO 9050
-#define STR_SIZE 256
-
-int Login(char usuario[STR_SIZE], char password[STR_SIZE]);
-int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad);
-void Consulta(int consulta_id, char resultadoBuff[STR_SIZE]);
-
-int main(int argc, char *argv[])
+void EjecutarServidor()
 {
-	int sock_conn, sock_listen, ret;
+	int sock_conn, sock_listen;
 	struct sockaddr_in serv_adr;
-	
-	char peticion[512];
-	char respuesta[512];
 	
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		printf("Error creando el socket\n");
@@ -36,100 +21,159 @@ int main(int argc, char *argv[])
 	if (listen(sock_listen, 4) < 0)
 		printf("No se pudo empezar a escuchar en el puerto especificado\n");
 	
-	for(;;){
-		printf ("Escuchando\n");
+	int i = 0;
+	int sockets[MAX_CONECTADOS];
+	pthread_t thread;
+	
+	for (;;)
+	{
+		printf("Escuchando\n");
 		
 		sock_conn = accept(sock_listen, NULL, NULL);
-		printf ("Recibida conexion\n");
+		printf("Recibida conexion\n");
 		
-		int acabado=0;
-		while (acabado==0)
+		// sock_conn es el socket que usamos para este cliente
+		sockets[i] = sock_conn;
+		
+		// crear thread y decirle qué tiene que hacer
+		pthread_create(&thread, NULL, AtenderCliente, &sockets[i]);
+		i++;
+	}
+}
+
+void* AtenderCliente(void* socket)
+{
+	int sock_conn = *((int*) socket);
+	
+	char peticion[BUFFER_SIZE];
+	char respuesta[BUFFER_SIZE];
+	
+	strcpy(peticion, "");
+	strcpy(respuesta, "");
+	
+	int ret;
+	char usuario[STR_SIZE];
+	strcpy(usuario, "");
+	
+	int acabado = 0;
+	while (acabado == 0)
+	{
+		ret = read(sock_conn, peticion, sizeof(peticion));
+		printf("Recibida una peticion de: %s\n", usuario);
+		
+		peticion[ret] = '\0';
+		printf("La peticion es: %s\n", peticion);
+		
+		char* p = strtok(peticion, "/");
+		int codigo = atoi(p);
+		
+		/*
+		Código 1: Loguear
+		Código 2: Registrarse
+		Código 3: Ejecutar consulta
+		Código 4: Lista de conectado		
+		*/
+		
+		if (codigo == 0)
 		{
-			ret=read(sock_conn,peticion, sizeof(peticion));
-			printf ("Recibida una peticion\n");
-			
-			// Tenemos que añadirle la marca de fin de string 
-			// para que no escriba lo que hay despues en el buffer
-			peticion[ret]='\0';
-			
-			printf ("La peticion es: %s\n", peticion);
-			char *p = strtok(peticion, "/");
-			int codigo =  atoi (p);
-			
-			/*
-				Codigo 1: Loguear
-				Codigo 2: Registrarse
-				Codigo 3: Ejecutar consulta
-			*/
-			
-			if (codigo == 1)
+			int eliminado = EliminaConectado(&listaConectados, usuario);
+			if (eliminado == 0)
 			{
-				char usuario[STR_SIZE];
-				char password[STR_SIZE];
-				
-				p = strtok(NULL, "/");
-				strcpy(usuario, p);
-				
-				p = strtok(NULL, "/");
-				strcpy(password, p);
-				
-				printf("Login: usuario %s, contrasena %s\n", usuario, password);
-				int resultado = Login(usuario, password);
-				
-				if (resultado <= 0)
-				{
-					strcpy(respuesta, "NO");
-				} else
-				{
-					strcpy(respuesta, "SI");
-				}
-			} else if (codigo == 2)
+				printf("Eliminado con exito: %s\n", usuario);
+			}
+			else
 			{
-				char usuario[STR_SIZE];
-				char password[STR_SIZE];
-				int edad;
-				
-				p = strtok(NULL, "/");
-				strcpy(usuario, p);
-				
-				p = strtok(NULL, "/");
-				strcpy(password, p);
-				
-				p = strtok(NULL, "/");
-				edad = atoi(p);
-				
-				printf("Registro: usuario %s, contrasena %s, edad %d\n", usuario, password, edad);
-				int resultado = Registrarse(usuario, password, edad);
-				
-				if (resultado <= 0)
-				{
-					strcpy(respuesta, "NO");
-				} else
-				{
-					strcpy(respuesta, "SI");
-				}
-			} else if (codigo == 3)
-			{
-				int consulta;
-				
-				p = strtok(NULL, "/");
-				consulta = atoi(p);
-				
-				printf("Consulta: %d\n", consulta);
-				char resultado[STR_SIZE];
-				
-				Consulta(consulta, resultado);
-				strcpy(respuesta, resultado);
+				printf("No se ha eliminado con exito\n");
 			}
 			
-			if (codigo != 0)
+			acabado = 1;
+		}
+		else if (codigo == 1)
+		{
+			char password[STR_SIZE];
+			
+			p = strtok(NULL, "/");
+			strcpy(usuario, p);
+			
+			p = strtok(NULL, "/");
+			strcpy(password, p);
+			
+			printf("Login: usuario %s, contrasena %s\n", usuario, password);
+			int resultado = Login(usuario, password);
+			
+			if (resultado <= 0)
 			{
-				printf ("Respuesta: %s\n", respuesta);
-				write (sock_conn,respuesta, strlen(respuesta));
+				strcpy(respuesta, "NO");
+			} else
+			{
+				strcpy(respuesta, "SI");
+				
+				int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
+				if (solucion == 0)
+				{
+					printf("Se haintroducido correctamente\n");
+				} else
+				{
+					printf("No se ha guardado nada\n");
+				}
 			}
 		}
-		close(sock_conn);
+		else if (codigo == 2)
+		{
+			char usuario[STR_SIZE];
+			char password[STR_SIZE];
+			int edad;
+			
+			p = strtok(NULL, "/");
+			strcpy(usuario, p);
+			
+			p = strtok(NULL, "/");
+			strcpy(password, p);
+			
+			p = strtok(NULL, "/");
+			edad = atoi(p);
+			
+			printf("Registro: usuario %s, contrasena %s, edad %d\n", usuario, password, edad);
+			int resultado = Registrarse(usuario, password, edad);
+			
+			if (resultado <= 0)
+			{
+				strcpy(respuesta, "NO");
+			} else
+			{
+				strcpy(respuesta, "SI");
+			}
+		}
+		else if (codigo == 3)
+		{
+			int consulta;
+			
+			p = strtok(NULL, "/");
+			consulta = atoi(p);
+			
+			printf("Consulta: %d\n", consulta);
+			char resultado[STR_SIZE];
+			Consulta(consulta, resultado);
+			
+			strcpy(respuesta, resultado);
+		}
+		else if (codigo == 4)
+		{
+			char conectados[BUFFER_SIZE];
+			strcpy(conectados, "");
+			
+			DameConectados(&listaConectados, conectados);
+			strcpy(respuesta, conectados);
+		}
+		
+		if (codigo != 0)
+		{
+			printf("Respuesta: %s\n", respuesta);
+			write(sock_conn, respuesta, strlen(respuesta));
+		}
 	}
+	
+	close(sock_conn);
 }
 
 int Login(char usuario[STR_SIZE], char password[STR_SIZE])
@@ -179,7 +223,7 @@ int Login(char usuario[STR_SIZE], char password[STR_SIZE])
 	{
 		resultado_login = 1;
 	}
-
+	
 	mysql_close(conn);
 	return resultado_login;
 }
@@ -251,7 +295,7 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
 		mysql_close(conn);
 		return -1;
 	}
-
+	
 	mysql_close(conn);
 	return 1;
 }
@@ -316,5 +360,14 @@ void Consulta(int consulta_id, char resultadoBuff[STR_SIZE])
 	mysql_close(conn);
 }
 
-
-
+void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE])
+{
+	strcpy(respuesta, "");
+	sprintf(respuesta, "%d/", lista->num);
+	
+	for (int i = 0; i < lista->num; i++)
+	{
+		strcat(respuesta, lista->conectados[i].nombre);
+		strcat(respuesta, ",");
+	}
+}
