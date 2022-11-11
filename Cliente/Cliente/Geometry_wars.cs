@@ -102,7 +102,7 @@ namespace Cliente
             ListaConectadosView.Visible = false;
             try {
                 IPAddress direc = IPAddress.Parse("192.168.56.101");
-                IPEndPoint ipep = new IPEndPoint(direc, 9080);
+                IPEndPoint ipep = new IPEndPoint(direc, 9050);
 
 
                 //Creamos el socket 
@@ -208,7 +208,7 @@ namespace Cliente
             try
             {
                 IPAddress direc = IPAddress.Parse("192.168.56.101");
-                IPEndPoint ipep = new IPEndPoint(direc, 9080);
+                IPEndPoint ipep = new IPEndPoint(direc, 9050);
 
 
                 //Creamos el socket 
