@@ -17,3 +17,5 @@ Version 2 comunicada por Marcos
 URL version 2:https://youtu.be/eci52xk2QhI  URL avance grafico: https://youtu.be/zwgPsA4V5MQ
 
 Version 3 generada por Marcos
+
+Version 3 verificada por Santiago
