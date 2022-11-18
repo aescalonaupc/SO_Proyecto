@@ -8,18 +8,119 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Cliente
 {
     public partial class Geometry_wars : Form
     {
         Socket server;
-        int conectado = 0;
+        Thread atender;
+
+        public const string ServidorIp = "147.83.117.22";
+
+        public const int ServidorPuerto = 50059;
+
         public Geometry_wars()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
         }
 
+
+        private void AtenderServidor()
+        {
+            try
+            {
+                while (true)
+                {
+                    byte[] msg = new byte[80];
+                    server.Receive(msg);
+                    string mensaje = Encoding.ASCII.GetString(msg).Split('\0')[0];
+
+                    //MessageBox.Show(mensaje);
+                    string[] trozos = mensaje.Split('/');
+                    int peticion = Convert.ToInt32(trozos[0]);
+                    string respuesta;
+                    switch (peticion)
+                    {
+                        case 1:
+                            respuesta = trozos[1].Split('\0')[0];
+                            //MessageBox.Show(respuesta);
+
+                            if (respuesta == "SI")
+                            {
+                                MessageBox.Show("Bienvenido");
+
+                                Invoke(new Action(() =>
+                                {
+                                    usuario.Visible = false;
+                                    contraseña.Visible = false;
+                                    label2.Visible = false;
+                                    label3.Visible = false;
+                                    edad.Visible = false;
+                                    label4.Visible = false;
+                                    login.Visible = false;
+                                    registration.Visible = false;
+
+                                    label1.Visible = true;
+
+                                    consulta1.Visible = true;
+                                    consulta2.Visible = true;
+                                    consulta3.Visible = true;
+                                    desconexion.Visible = true;
+                                    ejecutarBtn.Visible = true;
+                                }));
+                            }
+                            else
+                                MessageBox.Show("No se ha encontrado el usuario,revisa tu contraseña o registrate");
+                            break;
+                        case 2:
+                            respuesta = trozos[1].Split('\0')[0];
+                            MessageBox.Show(respuesta);
+                            if (respuesta == "SI")
+                                MessageBox.Show("Te has inscrito correctamente");
+                            else
+                                MessageBox.Show("No te has podido inscribir vuelve a probar");
+                            break;
+                        case 3:
+                            respuesta = trozos[2].Split('\0')[0];
+                            MessageBox.Show("Resultado consulta: " + respuesta);
+                            break;
+                        case 4:
+                            respuesta = trozos[2].Split('\0')[0];
+                            int numConectados = Convert.ToInt32(trozos[1]);
+
+                            ListaConectadosView.Invoke(new Action(() =>
+                            {
+                                if (!ListaConectadosView.Visible)
+                                {
+                                    ListaConectadosView.Visible = true;
+                                    ListaConectadosView.ColumnCount = 2;
+                                    ListaConectadosView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+                                    ListaConectadosView.GridColor = Color.Black;
+                                    ListaConectadosView.RowHeadersVisible = false;
+                                    ListaConectadosView.Columns[0].Name = "Número";
+                                    ListaConectadosView.Columns[1].Name = "Nombre";
+                                }
+
+                                ListaConectadosView.Rows.Clear();
+
+                                string[] conectados = respuesta.Split(',');
+                                //MessageBox.Show("Han llegado " + numConectados + " conectados");
+                                int i = 1;
+                                while (i <= numConectados)
+                                {
+                                    //MessageBox.Show(conectados[i - 1]);
+                                    ListaConectadosView.Rows.Add(i, conectados[i - 1]);
+                                    i++;
+                                }
+                            }));
+                            break;
+                    }
+                }
+            } catch (Exception) { }
+        }
         private void login_Click(object sender, EventArgs e)
         {
             if (usuario.TextLength == 0)
@@ -32,32 +133,6 @@ namespace Cliente
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                if (mensaje == "SI")
-                {
-                    MessageBox.Show("Bienvenido");
-                    usuario.Visible = false;
-                    contraseña.Visible = false;
-                    label2.Visible = false;
-                    label3.Visible = false;
-                    edad.Visible = false;
-                    label4.Visible = false;
-                    login.Visible = false;
-                    registration.Visible = false;
-                    label1.Visible = true;
-                    consulta1.Visible = true;
-                    consulta2.Visible = true;
-                    consulta3.Visible = true;
-                    desconexion.Visible = true;
-                    ejecutarBtn.Visible = true;
-                    ListaConectados.Visible = true;
-                }
-                else
-                    MessageBox.Show("No se ha encontrado el usuario,revisa tu contraseña o registrate");
 
             }
             
@@ -84,15 +159,6 @@ namespace Cliente
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                if (mensaje == "SI")
-                {
-                    MessageBox.Show("Te has inscrito correctamente");
-                }
             }
 
         }
@@ -101,13 +167,17 @@ namespace Cliente
         {
             ListaConectadosView.Visible = false;
             try {
-                IPAddress direc = IPAddress.Parse("192.168.56.101");
-                IPEndPoint ipep = new IPEndPoint(direc, 9050);
+                IPAddress direc = IPAddress.Parse(ServidorIp);
+                IPEndPoint ipep = new IPEndPoint(direc, ServidorPuerto);
 
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 server.Connect(ipep);
+                //Creamos el thread
+                ThreadStart ts = delegate { AtenderServidor(); };
+                atender = new Thread(ts);
+                atender.Start();
             }
             catch (SocketException)
             {
@@ -120,63 +190,40 @@ namespace Cliente
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (conectado == 0)
+            if (consulta1.Checked)
             {
-                if (consulta1.Checked)
-                {
-                    //Intentamos conectar el socket
-                    // Quiere saber la longitud
-                    string mensaje = "3/1";
-                    // Enviamos al servidor el nombre tecleado
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                    server.Send(msg);
+                //Intentamos conectar el socket
+                // Quiere saber la longitud
+                string mensaje = "3/1";
+                // Enviamos al servidor el nombre tecleado
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
 
-                    //Recibimos la respuesta del servidor
-                    byte[] msg2 = new byte[80];
-                    server.Receive(msg2);
-                    mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            }
+            else if (consulta2.Checked)
+            {
+                //Intentamos conectar el socket
+                // Quiere saber la longitud
+                string mensaje = "3/2";
+                // Enviamos al servidor el nombre tecleado
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
 
-                    MessageBox.Show("Resultado consulta: " + mensaje);
-                }
-                else if (consulta2.Checked)
-                {
-                    //Intentamos conectar el socket
-                    // Quiere saber la longitud
-                    string mensaje = "3/2";
-                    // Enviamos al servidor el nombre tecleado
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                    server.Send(msg);
 
-                    //Recibimos la respuesta del servidor
-                    byte[] msg2 = new byte[80];
-                    server.Receive(msg2);
-                    mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                    MessageBox.Show("Resultado consulta: " + mensaje);
-                }
-                else if (consulta3.Checked)
-                {
-                    //Intentamos conectar el socket
-                    // Quiere saber la longitud
-                    string mensaje = "3/3";
-                    // Enviamos al servidor el nombre tecleado
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                    server.Send(msg);
-
-                    //Recibimos la respuesta del servidor
-                    byte[] msg2 = new byte[80];
-                    server.Receive(msg2);
-                    mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                    MessageBox.Show("Resultado consulta: " + mensaje);
-                }
-                else
-                {
-                    MessageBox.Show("Por favor elige una consulta");
-                }
+            }
+            else if (consulta3.Checked)
+            {
+                //Intentamos conectar el socket
+                // Quiere saber la longitud
+                string mensaje = "3/3";
+                // Enviamos al servidor el nombre tecleado
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
             }
             else
-                MessageBox.Show("No estas conectado, por favor conectate");
+            {
+                MessageBox.Show("Por favor elige una consulta");
+            }
         }
 
         private void desconexion_Click(object sender, EventArgs e)
@@ -196,25 +243,26 @@ namespace Cliente
             consulta3.Visible = false;
             desconexion.Visible = false;
             ejecutarBtn.Visible = false;
-            ListaConectados.Visible = false;
             ListaConectadosView.Visible = false;
-            conectado = -1;
-
-
+            atender.Abort();
         }
 
         private void conexion_Click(object sender, EventArgs e)
         {
             try
             {
-                IPAddress direc = IPAddress.Parse("192.168.56.101");
-                IPEndPoint ipep = new IPEndPoint(direc, 9050);
+                IPAddress direc = IPAddress.Parse(ServidorIp);
+                IPEndPoint ipep = new IPEndPoint(direc, ServidorPuerto);
 
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 server.Connect(ipep);
                 MessageBox.Show("Te has vuelto a conectar");
+                //Creamos el thread
+                ThreadStart ts = delegate { AtenderServidor(); };
+                atender = new Thread(ts);
+                atender.Start();
             }
             catch (SocketException)
             {
@@ -231,45 +279,6 @@ namespace Cliente
             label4.Visible = true;
             login.Visible = true;
             registration.Visible = true;
-
-            conectado = 0;
-
-        }
-
-        private void ListaConectados_Click(object sender, EventArgs e)
-        {
-            // Quiere saber la longitud
-            string mensaje = "4/";
-            // Enviamos al servidor el nombre tecleado
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-            string[] trozos = mensaje.Split('/');
-            int numConectados = Convert.ToInt32(trozos[0]);
-
-
-            ListaConectadosView.Visible= true;
-            ListaConectadosView.ColumnCount = 2;
-            ListaConectadosView.RowCount = numConectados;
-            ListaConectadosView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
-            ListaConectadosView.GridColor = Color.Black;
-            ListaConectadosView.RowHeadersVisible = false;
-
-            ListaConectadosView.Columns[0].Name = "Número";
-            ListaConectadosView.Columns[1].Name = "Nombre";
-            string[] conectados = trozos[1].Split(',');
-            int i = 1;
-            while (i <= numConectados)
-            {
-                ListaConectadosView[0, i-1].Value = i;
-                ListaConectadosView[1, i-1].Value = conectados[i-1];
-                i = i + 1;
-
-            }           
 
         }
     }

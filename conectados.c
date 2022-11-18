@@ -6,12 +6,13 @@ pthread_mutex_t mutex= PTHREAD_MUTEX_INITIALIZER;
 int DamePos(TListaConectados* lista, char nombre[STR_SIZE])
 {
 	int i = 0;
-
+	
 	pthread_mutex_lock(&mutex);
 	while (i < lista->num)
 	{
 		if (strcmp(lista->conectados[i].nombre, nombre) == 0)
 		{
+			pthread_mutex_unlock(&mutex);
 			return i;
 		}
 	}
@@ -48,7 +49,7 @@ int EliminaConectado(TListaConectados* lista, char nombre[STR_SIZE])
 	}
 	
 	int i = pos;
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_lock(&mutex);
 	for (; i < lista->num; i++)
 	{
 		strcpy(lista->conectados[i].nombre, lista->conectados[i + 1].nombre);
@@ -58,4 +59,19 @@ int EliminaConectado(TListaConectados* lista, char nombre[STR_SIZE])
 	lista->num = lista->num - 1;
 	pthread_mutex_unlock(&mutex);
 	return 0;
+}
+
+void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE])
+{
+	pthread_mutex_lock(&mutex);
+	strcpy(respuesta, "");
+	sprintf(respuesta, "%d/", lista->num);
+	
+	for (int i = 0; i < lista->num; i++)
+	{
+		strcat(respuesta, lista->conectados[i].nombre);
+		strcat(respuesta, ",");
+	}
+	
+	pthread_mutex_unlock(&mutex);
 }
