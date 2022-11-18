@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS geometry_wars;
-CREATE DATABASE geometry_wars;
+DROP DATABASE IF EXISTS TG4_Geometry_Wars;
+CREATE DATABASE TG4_Geometry_Wars;
 
-USE geometry_wars;
+USE TG4_Geometry_Wars;
 
 CREATE TABLE jugador (
 	id INT NOT NULL,
