@@ -18,6 +18,9 @@
 /* Lista de conectados en el servidor */
 TListaConectados listaConectados;
 
+/* Tabla de partidas en el servidor */
+TTablaPartidas tablaPartidas;
+
 /* Conexión con la base de dados */
 MYSQL* mysqlConn;
 

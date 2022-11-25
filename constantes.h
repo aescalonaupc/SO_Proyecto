@@ -16,6 +16,11 @@
 // Maximo numero de jugadores conectados
 #define MAX_CONECTADOS 100
 
+// Maximo numero de partidas a la vez
+#define MAX_PARTIDAS 200
+
+#define MAX_JUGADORES_PARTIDA 5
+
 // Configuracion de la base de datos
 #ifndef DEV
 #define MYSQL_HOST "shiva2.upc.es"

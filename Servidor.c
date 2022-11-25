@@ -2,7 +2,7 @@
 #include "conectados.h"
 #include "main.h"
 
-/* Empieza a ejecutar el servidor, entrará en un bucle infinito escuchando */
+/* Empieza a ejecutar el servidor, entrarï¿¡ en un bucle infinito escuchando */
 void EjecutarServidor()
 {
 	int sock_conn, sock_listen;
@@ -36,13 +36,13 @@ void EjecutarServidor()
 		// sock_conn es el socket que usamos para este cliente
 		sockets[i] = sock_conn;
 		
-		// crear thread y decirle qué tiene que hacer
+		// crear thread y decirle quï¿© tiene que hacer
 		pthread_create(&thread, NULL, AtenderCliente, &sockets[i]);
 		i++;
 	}
 }
 
-/* Crea un bucle infinito que atenderá las peticiones de un cliente */
+/* Crea un bucle infinito que atenderï¿¡ las peticiones de un cliente */
 void* AtenderCliente(void* socket)
 {
 	int sock_conn = *((int*) socket);
@@ -73,14 +73,18 @@ void* AtenderCliente(void* socket)
 		
 		/*
 		Codigo 0: Desconexion
-		Código 1: Loguear
-		Código 2: Registrarse
-		Código 3: Ejecutar consulta
+		Cï¿³digo 1: Loguear
+		Cï¿³digo 2: Registrarse
+		Cï¿³digo 3: Ejecutar consulta
+		Cï¿³digo 4: Invitacion
+		Cï¿³digo 5: Aceptacion
 		*/
 		
 		if (codigo == 0)
 		{
+	
 			int eliminado = EliminaConectado(&listaConectados, usuario);
+			
 			if (eliminado == 0)
 			{
 				printf("Eliminado con exito: %s\n", usuario);
@@ -90,7 +94,6 @@ void* AtenderCliente(void* socket)
 			{
 				printf("No se ha eliminado con exito\n");
 			}
-			
 			acabado = 1;
 		}
 		else if (codigo == 1)
@@ -103,7 +106,7 @@ void* AtenderCliente(void* socket)
 			p = strtok(NULL, "/");
 			strcpy(password, p);
 			
-			printf("Login: usuario %s, contraseña %s\n", usuario, password);
+			printf("Login: usuario %s, contraseï¿±a %s\n", usuario, password);
 			int resultado = Login(usuario, password);
 			
 			if (resultado <= 0)
@@ -163,16 +166,168 @@ void* AtenderCliente(void* socket)
 			
 			sprintf(respuesta,"3/%d/%s",consulta,resultado);
 		}
-		
-		
-		if (codigo != 0)
+		else if (codigo == 4)
 		{
-			printf("Respuesta: %s\n", respuesta);
-			write(sock_conn, respuesta, strlen(respuesta));
+			printf("Recibida peticion de invitar jugador\n");
+			int slot = IntroducePartida(&tablaPartidas);
+			
+			if (slot == -1)
+			{
+				printf("No se pudo crear la partida\n");
+			}
+			else
+			{
+				printf("Asignado slot de partida %d\n", slot);
+				int exito = IntroduceJugadorEnPartida(&tablaPartidas, slot, sock_conn);
+				
+				if (exito == -1)
+				{
+					printf("No se pudo agregar a la partida al creador\n");
+				}
+				else
+				{
+					printf("Se ha conseguido agregar al creador\n");
+					// El creador de la partida ya ha confirmado que quiere jugarla
+					int a = MarcarJugadorConfirmado(&tablaPartidas, slot, sock_conn);
+					
+					printf("Se ha marcado como confirmado al creador %d\n", a);
+					
+					char amigo[STR_SIZE];
+					int socketAmigo;
+					
+					for (p = strtok(NULL, "/"); p != NULL; p = strtok(NULL, "/"))
+					{
+						strcpy(amigo, p);
+						socketAmigo = DameSocketDeNombre(&listaConectados, amigo);
+						
+						printf("amigo %s, socket %d\n", amigo, socketAmigo);
+						
+						if (socketAmigo == -1)
+						{
+							continue;
+						}
+						
+						exito = IntroduceJugadorEnPartida(&tablaPartidas, slot, socketAmigo);
+						
+						printf("Agregado amigo a la partida %d\n", exito);
+						
+						if (exito == -1)
+						{
+							printf("No se pudo agregar al jugador a la partida\n");
+						}
+						else
+						{
+							sprintf(respuesta, "5/%d/%s", slot, usuario);
+							printf("Enviando respuesta: %s\n", respuesta);
+							
+							write(socketAmigo, respuesta, strlen(respuesta));
+						}
+					}
+					
+					int buffer[MAX_JUGADORES_PARTIDA];
+					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					printf("Jugadores que estaban dentro:\n");
+					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					{
+						printf("%d\n", buffer[i]);
+					}
+				}
+			}
+		}
+		else if (codigo == 5)
+		{
+			printf("Respuesta de una solicitud de %s\n", usuario);
+			int slot;
+			
+			p = strtok(NULL, "/");
+			slot = atoi(p);
+			
+			char acepta[STR_SIZE];
+			p = strtok(NULL, "/");
+			strcpy(acepta, p);
+			
+			if (strcmp(acepta, "NO") == 0)
+			{
+				int buffer[MAX_JUGADORES_PARTIDA];
+				ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+				
+				printf("El jugador ha rechazado la solicitud, jugadores que estaban dentro:\n");
+				for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+				{
+					printf("%d\n", buffer[i]);
+				}
+				
+				sprintf(respuesta, "6/%d/0", slot);
+				
+				for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+				{
+					// No necesito contestarme a mi mismo
+					if (buffer[i] == sock_conn)
+					{
+						continue;
+					}
+					
+					if (buffer[i] == -1)
+					{
+						continue;
+					}
+					
+					printf("Enviando el mensaje a %d\n", buffer[i]);
+					write(buffer[i], respuesta, strlen(respuesta));
+				}
+				
+				EliminaPartida(&tablaPartidas, slot);
+			}
+			else if (strcmp(acepta, "SI") == 0)
+			{
+				int exito = MarcarJugadorConfirmado(&tablaPartidas, slot, sock_conn);
+				
+				if (exito == -1)
+				{
+					printf("No se pudo marcar el jugador como confirmado\n");
+				}
+				else
+				{
+					int estado = EstanTodosJugadoresConfirmados(&tablaPartidas, slot);
+					if (estado == 1)
+					{
+						sprintf(respuesta, "6/%d/1", slot);
+						
+						int buffer[MAX_JUGADORES_PARTIDA];
+						ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+						
+						printf("El jugador ha aceptado la solicitud, jugadores que estaban dentro:\n");
+						for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+						{
+							printf("%d\n", buffer[i]);
+						}
+						
+						for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+						{
+							if (buffer[i] == -1)
+							{
+								continue;
+							}
+							
+							write(buffer[i], respuesta, strlen(respuesta));
+						}
+					}
+				}
+			}
+		}
+		
+		if (codigo != 0 && codigo != 4 && codigo != 5)
+		{
+			if (strlen(respuesta) > 0)
+			{
+				printf("Respuesta: %s\n", respuesta);
+				write(sock_conn, respuesta, strlen(respuesta));
+			}
 		}
 		
 		if (notificarConectados == 1)
 		{
+
 			char notificacion[BUFFER_SIZE];
 			char conectados[BUFFER_SIZE];
 			
@@ -182,10 +337,12 @@ void* AtenderCliente(void* socket)
 			DameConectados(&listaConectados,conectados);
 			sprintf(notificacion,"4/%s",conectados);
 			
-			pthread_mutex_lock(&mutex);
+			pthread_mutex_lock(&mutexListaConectados);
 			for (int i = 0; i < listaConectados.num; i++)
+			{
 				write(listaConectados.conectados[i].socket, notificacion, strlen(notificacion));
-			pthread_mutex_unlock(&mutex);
+			}
+			pthread_mutex_unlock(&mutexListaConectados);
 			
 			printf("Notificacion:%s \n",notificacion);
 			notificarConectados = 0;
@@ -237,7 +394,7 @@ int Login(char usuario[STR_SIZE], char password[STR_SIZE])
 
 /*
 	Intenta registrar a un usuario en la base de datos,
-	Devuelve -1 en caso de error, 1 en caso de éxito
+	Devuelve -1 en caso de error, 1 en caso de ï¿©xito
 */
 int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
 {

@@ -45,6 +45,10 @@ namespace Cliente
             this.desconexion = new System.Windows.Forms.Button();
             this.conexion = new System.Windows.Forms.Button();
             this.ListaConectadosView = new System.Windows.Forms.DataGridView();
+            this.verContra = new System.Windows.Forms.Button();
+            this.btnInvitar = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.cargandoLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ListaConectadosView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -61,6 +65,7 @@ namespace Cliente
             this.contraseña.Location = new System.Drawing.Point(191, 133);
             this.contraseña.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.contraseña.Name = "contraseña";
+            this.contraseña.PasswordChar = '*';
             this.contraseña.Size = new System.Drawing.Size(133, 20);
             this.contraseña.TabIndex = 1;
             // 
@@ -158,7 +163,7 @@ namespace Cliente
             // 
             // edad
             // 
-            this.edad.Location = new System.Drawing.Point(349, 133);
+            this.edad.Location = new System.Drawing.Point(345, 77);
             this.edad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.edad.Name = "edad";
             this.edad.Size = new System.Drawing.Size(133, 20);
@@ -167,7 +172,7 @@ namespace Cliente
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(388, 102);
+            this.label4.Location = new System.Drawing.Point(355, 53);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(32, 13);
@@ -212,7 +217,7 @@ namespace Cliente
             // ListaConectadosView
             // 
             this.ListaConectadosView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.ListaConectadosView.Location = new System.Drawing.Point(191, 32);
+            this.ListaConectadosView.Location = new System.Drawing.Point(191, 21);
             this.ListaConectadosView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ListaConectadosView.Name = "ListaConectadosView";
             this.ListaConectadosView.RowHeadersWidth = 62;
@@ -220,11 +225,58 @@ namespace Cliente
             this.ListaConectadosView.Size = new System.Drawing.Size(160, 98);
             this.ListaConectadosView.TabIndex = 17;
             // 
+            // verContra
+            // 
+            this.verContra.Location = new System.Drawing.Point(357, 133);
+            this.verContra.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.verContra.Name = "verContra";
+            this.verContra.Size = new System.Drawing.Size(105, 27);
+            this.verContra.TabIndex = 18;
+            this.verContra.Text = "Ver contraseña";
+            this.verContra.UseVisualStyleBackColor = true;
+            this.verContra.Click += new System.EventHandler(this.verContra_Click);
+            // 
+            // btnInvitar
+            // 
+            this.btnInvitar.Location = new System.Drawing.Point(358, 21);
+            this.btnInvitar.Name = "btnInvitar";
+            this.btnInvitar.Size = new System.Drawing.Size(75, 23);
+            this.btnInvitar.TabIndex = 19;
+            this.btnInvitar.Text = "Invitar";
+            this.btnInvitar.UseVisualStyleBackColor = true;
+            this.btnInvitar.Visible = false;
+            this.btnInvitar.Click += new System.EventHandler(this.btnInvitar_Click);
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(207, 250);
+            this.progressBar1.MarqueeAnimationSpeed = 20;
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar1.TabIndex = 20;
+            this.progressBar1.Value = 50;
+            this.progressBar1.Visible = false;
+            // 
+            // cargandoLabel
+            // 
+            this.cargandoLabel.AutoSize = true;
+            this.cargandoLabel.Location = new System.Drawing.Point(313, 260);
+            this.cargandoLabel.Name = "cargandoLabel";
+            this.cargandoLabel.Size = new System.Drawing.Size(109, 13);
+            this.cargandoLabel.TabIndex = 21;
+            this.cargandoLabel.Text = "Invitando jugadores...";
+            this.cargandoLabel.Visible = false;
+            // 
             // Geometry_wars
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(533, 292);
+            this.Controls.Add(this.cargandoLabel);
+            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.btnInvitar);
+            this.Controls.Add(this.verContra);
             this.Controls.Add(this.ListaConectadosView);
             this.Controls.Add(this.conexion);
             this.Controls.Add(this.desconexion);
@@ -269,6 +321,10 @@ namespace Cliente
         private System.Windows.Forms.Button desconexion;
         private System.Windows.Forms.Button conexion;
         private System.Windows.Forms.DataGridView ListaConectadosView;
+        private System.Windows.Forms.Button verContra;
+        private System.Windows.Forms.Button btnInvitar;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label cargandoLabel;
     }
 }
 
