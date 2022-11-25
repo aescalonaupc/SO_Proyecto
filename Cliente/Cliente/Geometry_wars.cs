@@ -385,12 +385,18 @@ namespace Cliente
                 return;
             }
 
-            string mensaje = "4/" + string.Join("/", usuariosInvitar);
-            byte[] msg = Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
+            if (usuariosInvitar.Count <= 5)
+            {
+                string mensaje = "4/" + string.Join("/", usuariosInvitar);
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
 
-            progressBar1.Visible = true;
-            cargandoLabel.Visible = true;
+                progressBar1.Visible = true;
+                cargandoLabel.Visible = true;
+            }
+            else
+                MessageBox.Show("Escoge a menos personas, max 5");
+              
         }
 
         //        try {
