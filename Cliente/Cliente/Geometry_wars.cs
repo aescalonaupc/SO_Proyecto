@@ -25,10 +25,10 @@ namespace Cliente
 
         List<string> usuariosInvitar = new List<string>();
 
-        public const string ServidorIp = "192.168.56.101";
-        public const int ServidorPuerto = 5059;
-        //public const string ServidorIp = "147.83.117.22";
-        //public const int ServidorPuerto = 50059;
+        //public const string ServidorIp = "192.168.56.101";
+        //public const int ServidorPuerto = 5059;
+        public const string ServidorIp = "147.83.117.22";
+        public const int ServidorPuerto = 50059;
 
         public Geometry_wars()
         {
