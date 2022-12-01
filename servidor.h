@@ -17,5 +17,6 @@ int Login(char usuario[STR_SIZE], char password[STR_SIZE]);
 int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad);
 void Consulta(int consulta_id, char resultadoBuff[STR_SIZE]);
 void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE]);
+int ComprobarSiYaEstaRegistrado(char usuario[STR_SIZE]);
 
 #endif

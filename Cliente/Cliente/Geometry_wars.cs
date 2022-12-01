@@ -25,8 +25,10 @@ namespace Cliente
 
         List<string> usuariosInvitar = new List<string>();
 
-        public const string ServidorIp = "147.83.117.22";
-        public const int ServidorPuerto = 50059;
+        public const string ServidorIp = "192.168.56.101";
+        public const int ServidorPuerto = 5059;
+        //public const string ServidorIp = "147.83.117.22";
+        //public const int ServidorPuerto = 50059;
 
         public Geometry_wars()
         {
@@ -75,17 +77,21 @@ namespace Cliente
                                     desconexion.Visible = true;
                                     ejecutarBtn.Visible = true;
                                     btnInvitar.Visible = true;
-                                    
+
                                 }));
                             }
-                            else
+                            else if (trozos[1] == "NO")
                                 MessageBox.Show("No se ha encontrado el usuario,revisa tu contraseña o registrate");
+                            else
+                                MessageBox.Show("Ya estas conectado en otro dispositivo, cierra sesion antes");
                             break;
                         case 2:
                             if (trozos[1] == "SI")
                                 MessageBox.Show("Te has inscrito correctamente");
-                            else
+                            else if (trozos[1] == "NO")
                                 MessageBox.Show("No te has podido inscribir vuelve a probar");
+                            else
+                                MessageBox.Show("Ese usuario ya existe, crea uno nuevo");
                             break;
                         case 3:
                             MessageBox.Show("Resultado consulta: " + trozos[2]);
@@ -167,12 +173,43 @@ namespace Cliente
                             } else if (estado == 1)
                             {
                                 MessageBox.Show("La partida empieza, todos han aceptado");
+
+                                Invoke(new Action(() =>
+                                {
+                                    chatBox.Visible = true;
+                                    chatTb.Visible = true;
+                                    chatSend.Visible = true;
+                                }));
                             }
 
                             Invoke(new Action(() =>
                             {
                                 progressBar1.Visible = false;
                                 cargandoLabel.Visible = false;
+                            }));
+                            break;
+                        case 7:
+                            string autor = trozos[1];
+
+                            string mensajeChat = trozos[2];
+
+                            // quizas el mensaje tenia "/" en su contenido
+                            if (trozos.Length > 3)
+                            {
+                                for (int i = 3; i < trozos.Length; i++)
+                                {
+                                    mensajeChat += "/" + trozos[i];
+                                }
+                            }
+
+                            if (autor == miUsuario)
+                            {
+                                autor = "Tú";
+                            }
+
+                            chatBox.Invoke(new Action(() =>
+                            {
+                                chatBox.Items.Add(autor + ": " + mensajeChat);
                             }));
                             break;
                     }
@@ -304,6 +341,10 @@ namespace Cliente
             desconexion.Visible = false;
             ejecutarBtn.Visible = false;
             ListaConectadosView.Visible = false;
+            btnInvitar.Visible = false;
+            chatBox.Visible = false;
+            chatTb.Visible = false;
+            chatSend.Visible = false;
 
             atender.Abort();
         }
@@ -385,18 +426,56 @@ namespace Cliente
                 return;
             }
 
-            if (usuariosInvitar.Count <= 5)
+            string mensaje = "4/" + string.Join("/", usuariosInvitar);
+            byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            progressBar1.Visible = true;
+            cargandoLabel.Visible = true;
+        }
+
+        private void chatSend_Click(object sender, EventArgs e)
+        {
+            if (chatTb.Text.Length <= 0)
             {
-                string mensaje = "4/" + string.Join("/", usuariosInvitar);
+                return;
+            }
+
+            if (partidaId == -1)
+            {
+                return;
+            }
+
+            string chatMensaje = chatTb.Text.Trim();
+
+            if (chatMensaje.Length > 256)
+            {
+                chatMensaje = chatMensaje.Substring(0, 256);
+            }
+
+            string mensaje = "6/" + partidaId + "/" + chatMensaje;
+            byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            chatTb.Clear();
+        }
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            DialogResult Result = MessageBox.Show("Deseas cerrar el juego", string.Empty, MessageBoxButtons.YesNo);
+            e.Cancel = (Result == System.Windows.Forms.DialogResult.No);
+            base.OnFormClosing(e);
+            if (Result == DialogResult.Yes)
+            {
+                string mensaje = "0/";
+                // Enviamos al servidor el nombre tecleado
                 byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
-                progressBar1.Visible = true;
-                cargandoLabel.Visible = true;
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+                MessageBox.Show("Te has desconectado");
+                atender.Abort();
             }
-            else
-                MessageBox.Show("Escoge a menos personas, max 5");
-              
+
         }
 
         //        try {

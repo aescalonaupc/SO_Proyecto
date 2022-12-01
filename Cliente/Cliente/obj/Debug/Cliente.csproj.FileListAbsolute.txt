@@ -85,3 +85,25 @@ D:\shared\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.GenerateResource.cac
 D:\shared\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
 D:\shared\Proyecto\Cliente\Cliente\obj\Debug\Cliente.exe
 D:\shared\Proyecto\Cliente\Cliente\obj\Debug\Cliente.pdb
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe.config
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\bin\Debug\Cliente.pdb
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.AssemblyReference.cache
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.SuggestedBindingRedirects.cache
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.Geometry_wars.resources
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.GenerateResource.cache
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.exe
+C:\Users\adri7\Downloads\Proyecto (1)\Proyecto\Cliente\Cliente\obj\Debug\Cliente.pdb
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe.config
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\bin\Debug\Cliente.exe
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\bin\Debug\Cliente.pdb
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.AssemblyReference.cache
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.SuggestedBindingRedirects.cache
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.Geometry_wars.resources
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.Properties.Resources.resources
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.GenerateResource.cache
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.exe
+C:\Users\marco\Downloads\Proyecto\Proyecto\Cliente\Cliente\obj\Debug\Cliente.pdb

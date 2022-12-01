@@ -106,26 +106,37 @@ void* AtenderCliente(void* socket)
 			p = strtok(NULL, "/");
 			strcpy(password, p);
 			
-			printf("Login: usuario %s, contrase￱a %s\n", usuario, password);
-			int resultado = Login(usuario, password);
-			
-			if (resultado <= 0)
+			int Esta_en_la_lista = DamePos(&listaConectados,usuario);
+			if(Esta_en_la_lista==-1)
 			{
-				strcpy(respuesta, "1/NO");
-			} else
-			{
-				strcpy(respuesta, "1/SI");
+				printf("Login: usuario %s, contrase￱a %s\n", usuario, password);
+				int resultado = Login(usuario, password);
 				
-				int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
-				if (solucion == 0)
+				if (resultado <= 0)
 				{
-					printf("Se ha introducido correctamente\n");
-					notificarConectados = 1;
+					strcpy(respuesta, "1/NO");
 				} else
 				{
-					printf("No se ha guardado nada\n");
+					strcpy(respuesta, "1/SI");
+					
+					int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
+					if (solucion == 0)
+					{
+						printf("Se ha introducido correctamente\n");
+						notificarConectados = 1;
+					} else
+					{
+						printf("No se ha guardado nada\n");
+					}
 				}
 			}
+			else
+			{
+				printf("Ya esta contectado\n");
+				strcpy(respuesta, "1/YA_ESTA");
+			}
+			
+			
 		}
 		else if (codigo == 2)
 		{
@@ -141,17 +152,26 @@ void* AtenderCliente(void* socket)
 			
 			p = strtok(NULL, "/");
 			edad = atoi(p);
-			
-			printf("Registro: usuario %s, contrasena %s, edad %d\n", usuario, password, edad);
-			int resultado = Registrarse(usuario, password, edad);
-			
-			if (resultado <= 0)
+			int Existe_usuario = ComprobarSiYaEstaRegistrado(usuario);
+			if(Existe_usuario==0)
 			{
-				strcpy(respuesta, "2/NO");
-			} else
-			{
-				strcpy(respuesta, "2/SI");
+				printf("Registro: usuario %s, contrasena %s, edad %d\n", usuario, password, edad);
+				int resultado = Registrarse(usuario, password, edad);
+				
+				if (resultado <= 0)
+				{
+					strcpy(respuesta, "2/NO");
+				} else
+				{
+					strcpy(respuesta, "2/SI");
+				}
 			}
+			else
+			{
+				printf(	"Ese nombre ya lo usa otro usuario");
+				strcpy(respuesta, "2/YA_ESTA");
+			}
+			
 		}
 		else if (codigo == 3)
 		{
@@ -315,8 +335,40 @@ void* AtenderCliente(void* socket)
 				}
 			}
 		}
+		else if (codigo == 6)
+		{
+			char mensaje[STR_SIZE];
+			int slot;
+			
+			p = strtok(NULL, "/");
+			slot = atoi(p);
+			
+			p = strtok(NULL, "/");
+			strcpy(mensaje, p);
+			for (p = strtok(NULL, "/"); p != NULL; p = strtok(NULL, "/"))
+			{
+				strcat(mensaje, "/");
+				strcat(mensaje, p);
+			}
+			
+			int buffer[MAX_JUGADORES_PARTIDA];
+			ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+			
+			sprintf(respuesta, "7/%s/%s", usuario, mensaje);
+			
+			for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+			{
+				if (buffer[i] == -1)
+				{
+					continue;
+				}
+				
+				write(buffer[i], respuesta, strlen(respuesta));
+			}
+			
+		}
 		
-		if (codigo != 0 && codigo != 4 && codigo != 5)
+		if (codigo != 0 && codigo != 4 && codigo != 5 && codigo != 6)
 		{
 			if (strlen(respuesta) > 0)
 			{
@@ -391,7 +443,42 @@ int Login(char usuario[STR_SIZE], char password[STR_SIZE])
 	
 	return resultado_login;
 }
+/*
+Busca si el usuario ya esta en la base de datos,
+Devuelve -1 en caso de error, 0 en caso de no existir el usuario, 1 si exito
+*/
+int ComprobarSiYaEstaRegistrado(char usuario[STR_SIZE])
+{
+	MYSQL_RES* resultado;
+	MYSQL_ROW row;
+	int err;
+	
+	char consulta[STR_SIZE];
+	strcpy(consulta, "select jugador.id from jugador where jugador.username='");
+	strcat(consulta,usuario);
+	strcat(consulta, "';");
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		printf ("Error al consultar la base de datos %u %s\n",mysql_errno(mysqlConn), mysql_error(mysqlConn));
+		return -1;
+	}
+	
+	resultado = mysql_store_result(mysqlConn);
+	row = mysql_fetch_row(resultado);
+	
+	int resultado_login;
+	if (row == NULL)
+	{
+		resultado_login = 0;
+	} else
+	{
+		resultado_login = 1;
+	}
 
+	return resultado_login;
+}
 /*
 	Intenta registrar a un usuario en la base de datos,
 	Devuelve -1 en caso de error, 1 en caso de ￩xito

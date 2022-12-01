@@ -49,13 +49,16 @@ namespace Cliente
             this.btnInvitar = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.cargandoLabel = new System.Windows.Forms.Label();
+            this.chatBox = new System.Windows.Forms.ListBox();
+            this.chatTb = new System.Windows.Forms.TextBox();
+            this.chatSend = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ListaConectadosView)).BeginInit();
             this.SuspendLayout();
             // 
             // usuario
             // 
             this.usuario.Location = new System.Drawing.Point(191, 77);
-            this.usuario.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.usuario.Margin = new System.Windows.Forms.Padding(2);
             this.usuario.Name = "usuario";
             this.usuario.Size = new System.Drawing.Size(133, 20);
             this.usuario.TabIndex = 0;
@@ -63,7 +66,7 @@ namespace Cliente
             // contraseña
             // 
             this.contraseña.Location = new System.Drawing.Point(191, 133);
-            this.contraseña.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.contraseña.Margin = new System.Windows.Forms.Padding(2);
             this.contraseña.Name = "contraseña";
             this.contraseña.PasswordChar = '*';
             this.contraseña.Size = new System.Drawing.Size(133, 20);
@@ -92,7 +95,7 @@ namespace Cliente
             // login
             // 
             this.login.Location = new System.Drawing.Point(200, 161);
-            this.login.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.login.Margin = new System.Windows.Forms.Padding(2);
             this.login.Name = "login";
             this.login.Size = new System.Drawing.Size(100, 27);
             this.login.TabIndex = 5;
@@ -103,7 +106,7 @@ namespace Cliente
             // registration
             // 
             this.registration.Location = new System.Drawing.Point(202, 201);
-            this.registration.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.registration.Margin = new System.Windows.Forms.Padding(2);
             this.registration.Name = "registration";
             this.registration.Size = new System.Drawing.Size(98, 27);
             this.registration.TabIndex = 6;
@@ -126,7 +129,7 @@ namespace Cliente
             // 
             this.consulta1.AutoSize = true;
             this.consulta1.Location = new System.Drawing.Point(51, 77);
-            this.consulta1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta1.Margin = new System.Windows.Forms.Padding(2);
             this.consulta1.Name = "consulta1";
             this.consulta1.Size = new System.Drawing.Size(72, 17);
             this.consulta1.TabIndex = 8;
@@ -139,7 +142,7 @@ namespace Cliente
             // 
             this.consulta2.AutoSize = true;
             this.consulta2.Location = new System.Drawing.Point(51, 104);
-            this.consulta2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta2.Margin = new System.Windows.Forms.Padding(2);
             this.consulta2.Name = "consulta2";
             this.consulta2.Size = new System.Drawing.Size(72, 17);
             this.consulta2.TabIndex = 9;
@@ -152,7 +155,7 @@ namespace Cliente
             // 
             this.consulta3.AutoSize = true;
             this.consulta3.Location = new System.Drawing.Point(51, 133);
-            this.consulta3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.consulta3.Margin = new System.Windows.Forms.Padding(2);
             this.consulta3.Name = "consulta3";
             this.consulta3.Size = new System.Drawing.Size(72, 17);
             this.consulta3.TabIndex = 10;
@@ -164,7 +167,7 @@ namespace Cliente
             // edad
             // 
             this.edad.Location = new System.Drawing.Point(345, 77);
-            this.edad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.edad.Margin = new System.Windows.Forms.Padding(2);
             this.edad.Name = "edad";
             this.edad.Size = new System.Drawing.Size(133, 20);
             this.edad.TabIndex = 11;
@@ -193,7 +196,7 @@ namespace Cliente
             // desconexion
             // 
             this.desconexion.Location = new System.Drawing.Point(53, 205);
-            this.desconexion.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.desconexion.Margin = new System.Windows.Forms.Padding(2);
             this.desconexion.Name = "desconexion";
             this.desconexion.Size = new System.Drawing.Size(82, 23);
             this.desconexion.TabIndex = 14;
@@ -205,7 +208,7 @@ namespace Cliente
             // conexion
             // 
             this.conexion.Location = new System.Drawing.Point(191, 66);
-            this.conexion.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.conexion.Margin = new System.Windows.Forms.Padding(2);
             this.conexion.Name = "conexion";
             this.conexion.Size = new System.Drawing.Size(82, 38);
             this.conexion.TabIndex = 15;
@@ -218,7 +221,7 @@ namespace Cliente
             // 
             this.ListaConectadosView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ListaConectadosView.Location = new System.Drawing.Point(191, 21);
-            this.ListaConectadosView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ListaConectadosView.Margin = new System.Windows.Forms.Padding(2);
             this.ListaConectadosView.Name = "ListaConectadosView";
             this.ListaConectadosView.RowHeadersWidth = 62;
             this.ListaConectadosView.RowTemplate.Height = 28;
@@ -228,7 +231,7 @@ namespace Cliente
             // verContra
             // 
             this.verContra.Location = new System.Drawing.Point(357, 133);
-            this.verContra.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.verContra.Margin = new System.Windows.Forms.Padding(2);
             this.verContra.Name = "verContra";
             this.verContra.Size = new System.Drawing.Size(105, 27);
             this.verContra.TabIndex = 18;
@@ -268,11 +271,42 @@ namespace Cliente
             this.cargandoLabel.Text = "Invitando jugadores...";
             this.cargandoLabel.Visible = false;
             // 
+            // chatBox
+            // 
+            this.chatBox.FormattingEnabled = true;
+            this.chatBox.Location = new System.Drawing.Point(508, 21);
+            this.chatBox.Name = "chatBox";
+            this.chatBox.Size = new System.Drawing.Size(225, 212);
+            this.chatBox.TabIndex = 22;
+            this.chatBox.Visible = false;
+            // 
+            // chatTb
+            // 
+            this.chatTb.Location = new System.Drawing.Point(508, 250);
+            this.chatTb.Name = "chatTb";
+            this.chatTb.Size = new System.Drawing.Size(169, 20);
+            this.chatTb.TabIndex = 23;
+            this.chatTb.Visible = false;
+            // 
+            // chatSend
+            // 
+            this.chatSend.Location = new System.Drawing.Point(683, 247);
+            this.chatSend.Name = "chatSend";
+            this.chatSend.Size = new System.Drawing.Size(50, 23);
+            this.chatSend.TabIndex = 24;
+            this.chatSend.Text = "Enviar";
+            this.chatSend.UseVisualStyleBackColor = true;
+            this.chatSend.Visible = false;
+            this.chatSend.Click += new System.EventHandler(this.chatSend_Click);
+            // 
             // Geometry_wars
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 292);
+            this.ClientSize = new System.Drawing.Size(745, 292);
+            this.Controls.Add(this.chatSend);
+            this.Controls.Add(this.chatTb);
+            this.Controls.Add(this.chatBox);
             this.Controls.Add(this.cargandoLabel);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnInvitar);
@@ -293,7 +327,7 @@ namespace Cliente
             this.Controls.Add(this.label2);
             this.Controls.Add(this.contraseña);
             this.Controls.Add(this.usuario);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Geometry_wars";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Geometry_wars_Load);
@@ -325,6 +359,9 @@ namespace Cliente
         private System.Windows.Forms.Button btnInvitar;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label cargandoLabel;
+        private System.Windows.Forms.ListBox chatBox;
+        private System.Windows.Forms.TextBox chatTb;
+        private System.Windows.Forms.Button chatSend;
     }
 }
 
