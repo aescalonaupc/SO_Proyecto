@@ -19,11 +19,58 @@ int DamePos(TListaConectados* lista, char nombre[STR_SIZE])
 			pthread_mutex_unlock(&mutexListaConectados);
 			return i;
 		}
-		i=i+1;
+		i++;
 	}
 	
 	pthread_mutex_unlock(&mutexListaConectados);
 	return -1;
+}
+
+/*
+Devuelve la posicion en la lista del conectado con el socket especificado,
+-1 si no lo encuentra
+*/
+int DamePosSocket(TListaConectados* lista, int socket)
+{
+	int i = 0;
+	pthread_mutex_lock(&mutexListaConectados);
+	while (i < lista->num)
+	{
+		if (lista->conectados[i].socket == socket)
+		{
+			pthread_mutex_unlock(&mutexListaConectados);
+			return i;
+		}
+		i++;
+	}
+	
+	pthread_mutex_unlock(&mutexListaConectados);
+	return -1;
+}
+
+/*
+	Devuelve el nombre del usuario con el socket indicado,
+	devuelve 1 si lo encuentra, 0 si no
+*/
+int ObtenerNombreDeSocket(TListaConectados* lista, int socket, char nombre[STR_SIZE])
+{
+	pthread_mutex_lock(&mutexListaConectados);
+	
+	int i = 0;
+	while (i < lista->num)
+	{
+		if (lista->conectados[i].socket == socket)
+		{
+			strcpy(nombre, lista->conectados[i].nombre);
+			pthread_mutex_unlock(&mutexListaConectados);
+			return 1;
+		}
+		
+		i++;
+	}
+	
+	pthread_mutex_unlock(&mutexListaConectados);
+	return 0;
 }
 
 /*
@@ -39,6 +86,7 @@ int IntroduceConectado(TListaConectados* lista, char nombre[STR_SIZE], int socke
 	{
 		strcpy(lista->conectados[posicion].nombre, nombre);
 		lista->conectados[posicion].socket = socket;
+		lista->conectados[posicion].estado = 0;
 		
 		lista->num = posicion + 1;
 		pthread_mutex_unlock(&mutexListaConectados);
@@ -69,12 +117,30 @@ int EliminaConectado(TListaConectados* lista, char nombre[STR_SIZE])
 		{
 			strcpy(lista->conectados[i].nombre, lista->conectados[i + 1].nombre);
 			lista->conectados[i].socket = lista->conectados[i + 1].socket;
+			lista->conectados[i].estado = lista->conectados[i + 1].estado;
 		}
 		lista->num = lista->num-1;
 		pthread_mutex_unlock(&mutexListaConectados);
 		
 		return 0;
 	}
+}
+
+/*
+	Modifica el indicador de estado del jugador conectado especificado
+*/
+void EstablecerEstadoConectado(TListaConectados* lista, int socket, int estado)
+{
+	int pos = DamePosSocket(lista, socket);
+	
+	if (pos == -1)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexListaConectados);
+	lista->conectados[pos].estado = estado;
+	pthread_mutex_unlock(&mutexListaConectados);
 }
 
 /*
@@ -102,10 +168,94 @@ int IntroducePartida(TTablaPartidas* tabla)
 	{
 		tabla->partidas[partidaSlot].creada = 1;
 		tabla->partidas[partidaSlot].empezada = 0;
+		
+		tabla->partidas[partidaSlot].id = -1;
+		tabla->partidas[partidaSlot].lider = -1;
+		tabla->partidas[partidaSlot].tipo = -1;
 	}
 	
 	pthread_mutex_unlock(&mutexTablaPartidas);
 	return partidaSlot;
+}
+
+/*
+	Establece la Id de la base de datos de la partida con el slot indicado
+*/
+void EstablecerPartidaId(TTablaPartidas* tabla, int slot, int id)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+
+	if (tabla->partidas[slot].creada != 1)
+	{
+		return;
+	}
+
+	tabla->partidas[slot].id = id;
+	pthread_mutex_unlock(&mutexTablaPartidas);
+}
+
+/*
+	Establece el socket del lider que ha creado la partida indicada
+*/
+void EstablecerPartidaLider(TTablaPartidas* tabla, int slot, int socket)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+
+	if (tabla->partidas[slot].creada != 1)
+	{
+		return;
+	}
+
+	tabla->partidas[slot].lider = socket;
+	pthread_mutex_unlock(&mutexTablaPartidas);
+}
+
+/*
+	Establece el tipo de juego de la partida indicada
+*/
+void EstablecerPartidaTipo(TTablaPartidas* tabla, int slot, int tipo)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+
+	if (tabla->partidas[slot].creada != 1)
+	{
+		return;
+	}
+
+	tabla->partidas[slot].tipo = tipo;
+	pthread_mutex_unlock(&mutexTablaPartidas);
+}
+
+/*
+	Devuelve el socket del lider de la partida indicada
+*/
+int ObtenerLiderPartida(TTablaPartidas* tabla, int slot)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return -1;
+	}
+	
+	int socket;
+	pthread_mutex_lock(&mutexTablaPartidas);
+	socket = tabla->partidas[slot].lider;
+	pthread_mutex_unlock(&mutexTablaPartidas);
+	return socket;
 }
 
 /*
@@ -150,11 +300,48 @@ int IntroduceJugadorEnPartida(TTablaPartidas* tabla, int slot, int socket)
 	// Inicialmente asignaremos el jugador como no confirmado,
 	// quiere decir que aun no ha confirmado pertenecer a la partida (invitacion)
 	tabla->partidas[slot].jugadores.lista[pos].confirmado = 0;
-	
 	tabla->partidas[slot].jugadores.num++;
 	
 	pthread_mutex_unlock(&mutexTablaPartidas);
 	return 1;
+}
+
+/*
+	Elimina un jugador (su socket) de la partida con el slot especificado,
+	devuelve -1 en caso de error, 1 en caso de exito
+*/
+void EliminaJugadorEnPartida(TTablaPartidas* tabla, int slot, int socket)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	// La partida debe estar creada
+	if (tabla->partidas[slot].creada != 1)
+	{
+		pthread_mutex_unlock(&mutexTablaPartidas);
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	for (int i = 0; i < tabla->partidas[slot].jugadores.num; i++)
+	{
+		if (tabla->partidas[slot].jugadores.lista[i].socket == socket)
+		{
+			for (int j = i; j < tabla->partidas[slot].jugadores.num - 1; j++)
+			{
+				tabla->partidas[slot].jugadores.lista[j].socket = tabla->partidas[slot].jugadores.lista[j + 1].socket;
+				tabla->partidas[slot].jugadores.lista[j].confirmado = tabla->partidas[slot].jugadores.lista[j + 1].confirmado;
+			}
+			
+			tabla->partidas[slot].jugadores.num--;
+			break;
+		}
+	}
+	
+	pthread_mutex_unlock(&mutexTablaPartidas);
 }
 
 /*
@@ -222,11 +409,11 @@ void EliminaPartida(TTablaPartidas* tabla, int slot)
 	de la partida especificada. Si la partida tiene menos jugadores que el maximo,
 	los huecos vacios seran -1
 */
-void ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[MAX_JUGADORES_PARTIDA])
+int ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[MAX_JUGADORES_PARTIDA])
 {
 	if (slot >= MAX_PARTIDAS)
 	{
-		return;
+		return 0;
 	}
 	
 	pthread_mutex_lock(&mutexTablaPartidas);
@@ -234,27 +421,33 @@ void ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[
 	if (tabla->partidas[slot].creada != 1)
 	{
 		pthread_mutex_unlock(&mutexTablaPartidas);
-		return;
+		return 0;
 	}
 	
 	if (tabla->partidas[slot].jugadores.num <= 0)
 	{
 		pthread_mutex_unlock(&mutexTablaPartidas);
-		return;
+		return 0;
 	}
 	
-	for (int i = 0; i < tabla->partidas[slot].jugadores.num; i++)
+	int i = 0;
+	for (; i < tabla->partidas[slot].jugadores.num; i++)
 	{
-		buffer[i] = tabla->partidas[slot].jugadores.lista[i].socket;
+		if (buffer != NULL)
+			buffer[i] = tabla->partidas[slot].jugadores.lista[i].socket;
 	}
 	
 	// Los huecos libres los dejaremos como -1 para identificarlos facilmente
-	for (int i = tabla->partidas[slot].jugadores.num; i < MAX_JUGADORES_PARTIDA; i++)
+	if (buffer != NULL)
 	{
-		buffer[i] = -1;
+		for (int j = tabla->partidas[slot].jugadores.num; j < MAX_JUGADORES_PARTIDA; j++)
+		{
+			buffer[j] = -1;
+		}	
 	}
 	
 	pthread_mutex_unlock(&mutexTablaPartidas);
+	return i;
 }
 
 /*
@@ -296,6 +489,29 @@ int EstanTodosJugadoresConfirmados(TTablaPartidas* tabla, int slot)
 }
 
 /*
+	Devuelve el slot de la partida en que esta el jugador, -1 si no esta en ninguna
+*/
+int ObtenerPartidaJugador(TTablaPartidas* tabla, int socket)
+{
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	for (int i = 0; i < MAX_PARTIDAS; i++)
+	{
+		for (int j = 0, n = tabla->partidas[i].jugadores.num; j < n; j++)
+		{
+			if (tabla->partidas[i].jugadores.lista[j].socket == socket)
+			{
+				pthread_mutex_unlock(&mutexTablaPartidas);
+				return i;
+			}
+		}
+	}
+	
+	pthread_mutex_unlock(&mutexTablaPartidas);
+	return -1;
+}
+
+/*
 	Devuelve el socket que corresponde al nombre especificado,
 	-1 en caso de error
 */
@@ -326,11 +542,99 @@ void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE])
 	strcpy(respuesta, "");
 	sprintf(respuesta, "%d/", lista->num);
 	
+	char buffer[BUFFER_SIZE];
+	strcpy(buffer, "");
+	
 	for (int i = 0; i < lista->num; i++)
 	{
-		strcat(respuesta, lista->conectados[i].nombre);
-		strcat(respuesta, ",");
+		sprintf(buffer, "%s%s,%d,", buffer, lista->conectados[i].nombre, lista->conectados[i].estado);
+		//strcat(respuesta, lista->conectados[i].nombre);
+		//strcat(respuesta, ",");
+	}
+	
+	sprintf(respuesta, "%s%s", respuesta, buffer);
+	
+	pthread_mutex_unlock(&mutexListaConectados);
+}
+
+/*
+	Devuelve la lista de sockets conectados
+*/
+int DameSocketsConectados(TListaConectados* lista, int buffer[MAX_CONECTADOS])
+{
+	pthread_mutex_lock(&mutexListaConectados);
+	
+	for (int i = 0; i < lista->num; i++)
+	{
+		buffer[i] = lista->conectados[i].socket;
 	}
 	
 	pthread_mutex_unlock(&mutexListaConectados);
+	return lista->num;
+}
+
+/*
+	Devuelve (llena en el buffer) los jugadores que estan en la partida indicada
+*/
+void ObtenerNombresJugadoresPartida(TListaConectados* lista, TTablaPartidas* tabla, int slot, char respuesta[BUFFER_SIZE])
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	if (tabla->partidas[slot].creada != 1)
+	{
+		pthread_mutex_unlock(&mutexTablaPartidas);
+		return;
+	}
+	
+	strcpy(respuesta, "");
+	sprintf(respuesta, "%d/", tabla->partidas[slot].jugadores.num);
+	
+	if (tabla->partidas[slot].jugadores.num > 0)
+	{
+		char nombre[STR_SIZE];
+		int socket;
+		int i = 0;
+		
+		for (; i < tabla->partidas[slot].jugadores.num; i++)
+		{
+			socket = tabla->partidas[slot].jugadores.lista[i].socket;
+			
+			if (ObtenerNombreDeSocket(lista, socket, nombre) == 0)
+			{
+				continue;
+			}
+			
+			strcat(respuesta, nombre);
+			strcat(respuesta, ",");
+		}
+	}
+	
+	pthread_mutex_unlock(&mutexTablaPartidas);
+}
+
+/*
+	Marca la partida indicada como empezada
+*/
+void MarcarPartidaEmpezada(TTablaPartidas* tabla, int slot)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	if (tabla->partidas[slot].creada != 1)
+	{
+		pthread_mutex_unlock(&mutexTablaPartidas);
+		return;
+	}
+	
+	tabla->partidas[slot].empezada = 1;
+	pthread_mutex_unlock(&mutexTablaPartidas);
 }
