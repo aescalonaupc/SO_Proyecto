@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>C:\Users\adri7\Desktop\GeometryWarsGame\GeometryWarsGame\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="Game\Window.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Launcher\Lobby.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Launcher\Register.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Launcher\Window.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
