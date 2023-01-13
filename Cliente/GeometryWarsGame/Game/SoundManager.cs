@@ -15,15 +15,10 @@ namespace GeometryWarsGame.Game
 
         public static SoundTrack? CurrentTrack { get; set; } = null;
 
-        private static volatile bool queueRunning = false;
-
         public static List<SoundTrack> SoundTracks = new List<SoundTrack>()
         {
             new SoundTrack(1, "Suspicious Bytes", Properties.Resources.lobby1),
-
-            //new SoundTrack(2, "Space Orgy", Properties.Resources.game1),
-            //new SoundTrack(3, "16-bit orchestra", Properties.Resources.game2),
-            new SoundTrack(4, "Geometry Fetish", Properties.Resources.game3),
+            new SoundTrack(4, "Geometry Orgy", Properties.Resources.game3),
         };
 
         [DllImport("winmm.dll")]
@@ -114,49 +109,17 @@ namespace GeometryWarsGame.Game
         public static void PlayIngame()
         {
             SetVolume(1);
-
-            //int minIdx = 1;
-            //int maxIdx = 2;
-            //int idx = minIdx;
-
-            //queueRunning = true;
-            PlayTrackLoop(3);
-            //CurrentTrack = SoundTracks[3];
-            //MemoryStream s = new MemoryStream((int)CurrentTrack.Audio.Length);
-            //CurrentTrack.Audio.CopyTo(s);
-            //SoundManager2.PlaySoundLoop(s);
-            //ThreadPool.QueueUserWorkItem((object? _) =>
-            //{
-            //    Logs.PrintDebug("Queued ThreadPool to play in-game music in loop");
-            //    while (queueRunning)
-            //    {
-            //        PlayTrackSync(idx);
-
-            //        idx++;
-            //        if (idx > maxIdx)
-            //        {
-            //            idx = minIdx;
-            //        }
-            //    }
-            //});
+            PlayTrackLoop(1);
         }
 
         public static void StopQueue()
         {
-            queueRunning = false;
-
             player.Stop();
-            //SoundManager2.PlaySound(null);
-            //SoundManager2.FreeHandle();
             CurrentTrack = null;
         }
 
         public static bool IsPlaying()
         {
-            //Logs.PrintDebug("IsPlaying(): " + (CurrentTrack != null && Volume > 0));
-            //Logs.PrintDebug("CurrentTrack: " + CurrentTrack);
-            //Logs.PrintDebug("Volume: " + Volume);
-
             return CurrentTrack != null && Volume > 0;
         }
 

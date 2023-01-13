@@ -28,8 +28,8 @@ namespace GeometryWarsGame.Game
                 return;
             }
 
-            bool shouldHandCursor = false;
             Vector2D mouseCoords = Program.GameWindow.MouseCoords;
+            bool checkHandCursor = false;
 
             int[] layers = components.Keys.ToArray();
             for (int i = 0; i < layers.Length; i++)
@@ -39,42 +39,29 @@ namespace GeometryWarsGame.Game
                 {
                     c.Update();
 
-                    if (!shouldHandCursor)
+                    if (!checkHandCursor && c is IClickable && c is IWideComponent)
                     {
-                        if (c is IWideComponent && ((IWideComponent)c).IsInside(mouseCoords))
-                        {
-                            shouldHandCursor = true;
-                        }
+                        checkHandCursor = (c as IWideComponent)!.IsInside(mouseCoords);
                     }
-                    
                 }
             }
 
-            //if (shouldHandCursor)
-            //{
-            //    Program.GameWindow.Invoke(() =>
-            //    {
-            //        Program.GameWindow.Cursor = Cursors.Hand;
-            //    });
-            //}
-            //else
-            //{
-            //    if (Program.GameWindow.IsGameRunning())
-            //    {
-            //        Program.GameWindow.Invoke(() =>
-            //        {
-            //            Program.GameWindow.Cursor = Cursors.Cross;
-            //        });
-            //    }
-            //    else
-            //    {
-            //        Program.GameWindow.Invoke(() =>
-            //        {
-            //            Program.GameWindow.Cursor = Cursors.Default;
-            //        });
-            //    }
-            //}
+            Window.CallUIThread(() =>
+            {
+                if (checkHandCursor && Program.GameWindow.Cursor != Cursors.Hand)
+                {
+                    Logs.PrintDebug("Change to hand cursor!");
+                    Program.GameWindow.Cursor = Cursors.Hand;
+                    return;
+                }
 
+                if (!checkHandCursor && Program.GameWindow.Cursor == Cursors.Hand)
+                {
+                    Logs.PrintDebug("Change to default cursor!");
+                    Program.GameWindow.Cursor = Cursors.Default;
+                    return;
+                }
+            }, uniquenessKey: 0);
         }
 
         public static void Render(Graphics g)

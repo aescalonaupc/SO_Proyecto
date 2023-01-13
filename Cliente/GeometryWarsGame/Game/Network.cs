@@ -134,27 +134,30 @@ namespace GeometryWarsGame.Game
                     // y el resto de jugadores estan en pantalla de carga,
                     // podemos empezar a ordenar crear entidades (como jugadores)
                     case 0:
-                        foreach (var item in Program.GameWindow.PlayerSpawnData)
+                        Window.CallThreaded(() =>
                         {
-                            // Somos nosotros, actualizamos nuestra posicion
-                            if (item.Name == Program.GameWindow.MyUsername)
+                            foreach (var item in Program.GameWindow.PlayerSpawnData)
                             {
-                                Program.GameWindow.MyPlayer!.Position = item.Position;
-                                continue;
+                                // Somos nosotros, actualizamos nuestra posicion
+                                if (item.Name == Program.GameWindow.MyUsername)
+                                {
+                                    Program.GameWindow.MyPlayer!.Position = item.Position;
+                                    continue;
+                                }
+
+                                // Es otro jugador, lo creamos
+                                Player p = new Player(item.Name, item.Position.X, item.Position.Y);
+                                p.Create();
+
+                                Utils.Task.RunAndForget(Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y));
                             }
 
-                            // Es otro jugador, lo creamos
-                            Player p = new Player(item.Name, item.Position.X, item.Position.Y);
-                            p.Create();
+                            Utils.Task.RunAndForget(Send("100/1/" + Program.GameWindow.MyPlayer!.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y));
 
-                            Utils.Task.RunAndForget(Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y));
-                        }
-
-                        Utils.Task.RunAndForget(Send("100/1/" + Program.GameWindow.MyPlayer!.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y));
-
-                        new TimerManager.Timer(5000, () =>
-                        {
-                            Utils.Task.RunAndForget(Send("100/3"));
+                            new TimerManager.Timer(5000, () =>
+                            {
+                                Utils.Task.RunAndForget(Send("100/3"));
+                            });
                         });
                         break;
 

@@ -72,23 +72,7 @@ namespace GeometryWarsGame.Game.Ui
             Position.Y = Program.GameWindow.Height / 2 - Height / 2;
         }
 
-        public override void Update()
-        {
-            Vector2D mousePosition = Program.GameWindow.MouseCoords;
-
-            if (IsInside(mousePosition))
-            {
-                beingHovered = true;
-
-                Program.GameWindow.Invoke(() =>
-                {
-                    Program.GameWindow.Cursor = Cursors.Hand;
-                });
-            } else
-            {
-                beingHovered = false;
-            }
-        }
+        public override void Update() { }
 
         public override void Render(Graphics g)
         {

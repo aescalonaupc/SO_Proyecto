@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GeometryWarsGame.Game.Entities;
 using GeometryWarsGame.Game.Utils;
+using System.Runtime.InteropServices;
 
 namespace GeometryWarsGame.Game
 {
@@ -49,12 +50,22 @@ namespace GeometryWarsGame.Game
         /// <summary>
         /// Spawn data received by the launcher used in networking to spawn players initially
         /// </summary>
-        public ConcurrentBag<PlayerSpawnData> PlayerSpawnData = new ConcurrentBag<PlayerSpawnData>();
+        public List<PlayerSpawnData> PlayerSpawnData = new List<PlayerSpawnData>();
 
         /// <summary>
         /// List of actions called from other threads which need to be run in the main game thread
         /// </summary>
-        public ConcurrentQueue<Action> ThreadSafeActions = new ConcurrentQueue<Action>();
+        private ConcurrentQueue<Action> ThreadSafeActions = new ConcurrentQueue<Action>();
+
+        /// <summary>
+        /// List of actions called from other threads to be run in main ui thread
+        /// </summary>
+        private ConcurrentQueue<Action> UIThreadSafeActions = new ConcurrentQueue<Action>();
+
+        /// <summary>
+        /// List of unique actions called from other threads to be run in main ui thread
+        /// </summary>
+        private ConcurrentDictionary<int, Action> UIThreadSafeUniqueActions = new ConcurrentDictionary<int, Action>();
 
         /// <summary>
         /// Current game states
@@ -125,6 +136,22 @@ namespace GeometryWarsGame.Game
         /// </summary>
         private BufferedGraphicsContext bgContext = BufferedGraphicsManager.Current;
 
+        #region native unmanaged code
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NativeMessage
+        {
+            public IntPtr Handle;
+            public uint Message;
+            public IntPtr WParameter;
+            public IntPtr LParameter;
+            public uint Time;
+            public Point Location;
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int PeekMessage(out NativeMessage message, IntPtr window, uint filterMin, uint filterMax, uint remove);
+        #endregion
+
         public Window()
         {
             InitializeComponent();
@@ -175,6 +202,29 @@ namespace GeometryWarsGame.Game
             OnGameStart += OnGameStartEvent;
             OnGameStateChange += OnGameStateChangeEvent;
             Shown += OnNativeShownEvent;
+
+            // `Idle` is fired when app is not busy processing system messages
+            // We use this fraction of time to execute queued thread safe actions
+            Application.Idle += (object? _, EventArgs _) =>
+            {
+                while (0 == PeekMessage(out _, IntPtr.Zero, (uint)0, (uint)0, (uint)0))
+                {
+                    while (!UIThreadSafeActions.IsEmpty)
+                    {
+                        if (UIThreadSafeActions.TryDequeue(out Action? a))
+                        {
+                            a();
+                        }
+                    }
+
+                    foreach (Action a in UIThreadSafeUniqueActions.Values)
+                    {
+                        a();
+                    }
+
+                    UIThreadSafeUniqueActions.Clear();
+                }
+            };
 
             Logs.PrintDebug("Window initialized");
         }
@@ -280,6 +330,20 @@ namespace GeometryWarsGame.Game
             ) {
                 Menus.Loading.Hide();
             }
+
+            if (IsGameRunning())
+            {
+                Window.CallUIThread(() =>
+                {
+                    Program.GameWindow.Cursor = Cursors.Cross;
+                }, uniquenessKey: 0);
+            } else if (IsAnyMenuOpen())
+            {
+                Window.CallUIThread(() =>
+                {
+                    Program.GameWindow.Cursor = Cursors.Default;
+                }, uniquenessKey: 0);
+            }
         }
 
         private void OnNativeMouseClick(object? sender, MouseEventArgs e)
@@ -345,7 +409,8 @@ namespace GeometryWarsGame.Game
         }
 
         /// <summary>
-        /// Calls `a()` from the main game thread
+        /// Calls `a` from the main game thread
+        /// 
         /// Used for entity updates, logic, etc.
         /// Used as a bridge from networking thread
         /// </summary>
@@ -353,6 +418,29 @@ namespace GeometryWarsGame.Game
         public static void CallThreaded(Action a)
         {
             Program.GameWindow.ThreadSafeActions.Enqueue(a);
+        }
+
+        /// <summary>
+        /// Calls `a` from the main ui thread
+        /// 
+        /// Used for winforms calls. Invoke is an
+        /// alternative but im not 100% sure how async that is
+        /// 
+        /// `a` is executed asynchronously when form is idle, there is no guarantee when it will be
+        /// 
+        /// If the action is supposed to be unique in the queue, that is, concurrent calls should not be
+        /// stack but only the last one, unique key can be set so as to identify the unique action
+        /// </summary>
+        /// <param name="a"></param>
+        public static void CallUIThread(Action a, int uniquenessKey = -1)
+        {
+            if (uniquenessKey >= 0)
+            {
+                Program.GameWindow.UIThreadSafeUniqueActions.AddOrUpdate(uniquenessKey, a, (_, _) => a);
+            } else
+            {
+                Program.GameWindow.UIThreadSafeActions.Enqueue(a);
+            }
         }
 
         /// <summary>
@@ -371,6 +459,15 @@ namespace GeometryWarsGame.Game
             GameState = 0;
 
             SetGameState(GameState.InGame, true);
+        }
+
+        /// <summary>
+        /// Closes the game window and (theoretically) returns to launcher
+        /// </summary>
+        public void CloseGame(string reason = "")
+        {
+            MessageBox.Show("El juego se ha cerrado. Motivo: " + reason);
+            Close();
         }
 
         /// <summary>
@@ -415,6 +512,7 @@ namespace GeometryWarsGame.Game
             }
 
             SoundManager.PlayIngame();
+
             // It's ok, just wait few ms
             while (!SoundManager.IsPlayerReady()) ;
 
