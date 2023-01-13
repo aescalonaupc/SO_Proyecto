@@ -49,21 +49,27 @@ namespace GeometryWarsGame.Game.Ui
         /// </summary>
         private bool beingHovered = false;
 
-        /// <summary>
-        /// If button is centered in X screen
-        /// </summary>
-        public bool IsXCentered { get; set; } = false;
-
-        /// <summary>
-        /// If button is centered in Y screen
-        /// </summary>
-        public bool IsYCentered { get; set; } = false;
-
         public Button(int width, int height, Vector2D position, string text, int layer = 0) : base(position, layer)
         {
             Width = width;
             Height = height;
             Text = text;
+        }
+
+        /// <summary>
+        /// Change Position to center on X
+        /// </summary>
+        public void CenterOnX()
+        {
+            Position.X = Program.GameWindow.Width / 2 - Width / 2;
+        }
+
+        /// <summary>
+        /// Change position to center on Y
+        /// </summary>
+        public void CenterOnY()
+        {
+            Position.Y = Program.GameWindow.Height / 2 - Height / 2;
         }
 
         public override void Update()
@@ -87,16 +93,6 @@ namespace GeometryWarsGame.Game.Ui
         public override void Render(Graphics g)
         {
             Rectangle rect = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-
-            if (IsXCentered)
-            {
-                rect.X = Program.GameWindow.Width / 2 - Width / 2;
-            }
-
-            if (IsYCentered)
-            {
-                rect.Y = Program.GameWindow.Height / 2 - Height / 2;
-            }
 
             if (beingHovered)
             {

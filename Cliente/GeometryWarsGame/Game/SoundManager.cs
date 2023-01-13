@@ -21,8 +21,8 @@ namespace GeometryWarsGame.Game
         {
             new SoundTrack(1, "Suspicious Bytes", Properties.Resources.lobby1),
 
-            new SoundTrack(2, "Space Orgy", Properties.Resources.game1),
-            new SoundTrack(3, "16-bit orchestra", Properties.Resources.game2),
+            //new SoundTrack(2, "Space Orgy", Properties.Resources.game1),
+            //new SoundTrack(3, "16-bit orchestra", Properties.Resources.game2),
             new SoundTrack(4, "Geometry Fetish", Properties.Resources.game3),
         };
 

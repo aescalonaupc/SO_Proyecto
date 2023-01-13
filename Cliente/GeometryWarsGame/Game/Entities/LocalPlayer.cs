@@ -89,6 +89,11 @@ namespace GeometryWarsGame.Game.Entities
         long lastSync = Time.GetReferenceMillis();
         public override void Update()
         {
+            if (State == EntityState.Destroyed)
+            {
+                return;
+            }
+
             if (!Dead)
             {
                 if (IsKeyActive(KeyId.MOVE_UP))
@@ -129,7 +134,7 @@ namespace GeometryWarsGame.Game.Entities
 
                 if (IsKeyActive(KeyId.SHOOT))
                 {
-                    if (Time.GetReferenceMillis() - lastTimeShoot > 100)
+                    if (Time.GetReferenceMillis() - lastTimeShoot > 250)
                     {
                         Shoot();
                         lastTimeShoot = Time.GetReferenceMillis();
@@ -152,9 +157,9 @@ namespace GeometryWarsGame.Game.Entities
                     Heading = f;
                 }
 
-                if (Time.GetReferenceMillis() - lastSync > 10)
+                if (Time.GetReferenceMillis() - lastSync > 40)
                 {
-                    _ = Network.Send("100/5/" + Id + "/" + Position.X + "/" + Position.Y + "/" + Heading + "/" + Health);
+                    Utils.Task.RunAndForget(Network.Send("100/5/" + Id + "/" + Position.X + "/" + Position.Y + "/" + Heading));
                     lastSync = Time.GetReferenceMillis();
                 }
 
@@ -175,16 +180,16 @@ namespace GeometryWarsGame.Game.Entities
             g.DrawString("(debug) player cam position " + CamPosition.ToString(), Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 75);
             g.DrawString("(debug) player heading " + Heading, Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 100);
 
-            g.DrawLine(new Pen(Color.Gray), CamPosition.X, CamPosition.Y, Program.GameWindow.MouseCoords.X, Program.GameWindow.MouseCoords.Y);
+            //g.DrawLine(new Pen(Color.Gray), CamPosition.X, CamPosition.Y, Program.GameWindow.MouseCoords.X, Program.GameWindow.MouseCoords.Y);
 
             base.Render(g);
         }
 
-        static volatile int specId = -1;
+        private static volatile int specId = -1;
         public static volatile bool SpecatorMode = false;
         public static void StartSpecMode()
         {
-            Task.Run(() =>
+            System.Threading.Tasks.Task.Run(() =>
             {
                 Logs.PrintDebug("Starting spectator mode from ThreadPool");
                 SpecatorMode = true;

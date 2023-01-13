@@ -70,6 +70,7 @@ int DamePosSocket(TListaConectados* lista, int socket);
 void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE]);
 int DameSocketDeNombre(TListaConectados* lista, char nombre[STR_SIZE]);
 void EstablecerEstadoConectado(TListaConectados* lista, int socket, int estado);
+int ObtenerEstadoConectado(TListaConectados* lista, int socket);
 int ObtenerNombreDeSocket(TListaConectados* lista, int socket, char nombre[STR_SIZE]);
 int DameSocketsConectados(TListaConectados* lista, int buffer[MAX_CONECTADOS]);
 

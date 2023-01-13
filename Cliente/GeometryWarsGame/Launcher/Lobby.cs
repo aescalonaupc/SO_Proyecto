@@ -390,6 +390,8 @@ namespace GeometryWarsGame.Launcher
             }
 
             Network.SetSocket(serverSocket);
+            Network.Initialize();
+
             Program.GameWindow.SetLocalPlayer(myUsername, myId, soyLider);
             Program.GameWindow.SetInitialData(datosJugadores, gameType);
 

@@ -37,11 +37,11 @@ namespace GeometryWarsGame.Launcher
         /// </summary>
         bool ejecutando = true;
 
-        const string servidorIp = "147.83.117.22";
-        const int servidorPuerto = 50059;
+        //const string servidorIp = "147.83.117.22";
+        //const int servidorPuerto = 50059;
 
-        //const string servidorIp = "192.168.56.101";
-        //const int servidorPuerto = 5059;
+        const string servidorIp = "192.168.56.101";
+        const int servidorPuerto = 5059;
 
         public Window()
         {
@@ -87,14 +87,23 @@ namespace GeometryWarsGame.Launcher
                 {
                     //MessageBox.Show("dentro while");
                     byte[] buffer = new byte[512];
+                    int n;
 
                     try
                     {
-                        serverSocket.Receive(buffer);
+                        n = serverSocket.Receive(buffer);
                         //MessageBox.Show("Received window");
                     } catch (SocketException e)
                     {
                         //MessageBox.Show("Excepcion receive " + e);
+                        continue;
+                    }
+
+                    if (n == 0)
+                    {
+                        Volatile.Write(ref ejecutando, false);
+                        MessageBox.Show("La conexion con el servidor se ha cerrado");
+                        Environment.Exit(0);
                         continue;
                     }
 

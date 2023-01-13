@@ -41,8 +41,12 @@ namespace GeometryWarsGame.Game
         /// <param name="entity"></param>
         public static void AddEntity(Entity entity)
         {
+            if (!entities.TryAdd(entity.Id, entity))
+            {
+                return;
+            }
+
             Logs.PrintDebug("Added entity (" + entity.Id + ", " + entity + ") to entity pool");
-            entities.TryAdd(entity.Id, entity);
         }
 
         /// <summary>
@@ -51,8 +55,12 @@ namespace GeometryWarsGame.Game
         /// <param name="entity"></param>
         public static void RemoveEntity(Entity entity)
         {
+            if (!entities.TryRemove(entity.Id, out _))
+            {
+                return;
+            }
+
             Logs.PrintDebug("Removed entity (" + entity.Id + ") from entity pool");
-            entities.TryRemove(entity.Id, out _);
         }
 
         /// <summary>

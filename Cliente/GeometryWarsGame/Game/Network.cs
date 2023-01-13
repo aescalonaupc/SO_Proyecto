@@ -49,7 +49,7 @@ namespace GeometryWarsGame.Game
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static async Task Send(string data)
+        public static async System.Threading.Tasks.Task Send(string data)
         {
             await Send(Encoding.ASCII.GetBytes(data + "$"));
         }
@@ -59,13 +59,14 @@ namespace GeometryWarsGame.Game
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static async Task Send(byte[] data)
+        public static async System.Threading.Tasks.Task Send(byte[] data)
         {
-            if (server == null) return;
-            //Logs.PrintDebug("Before Send");
+            if (server == null)
+            {
+                return;
+            }
+
             _ = await server.SendAsync(data, SocketFlags.None);
-            //Logs.PrintDebug("After Send");
-            //server?.Send(data);
         }
 
         private static void NetworkingLoop()
@@ -77,18 +78,18 @@ namespace GeometryWarsGame.Game
 
             Logs.PrintDebug("Started networking");
 
+            // Create buffer once!
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(8192);
+
             try
             {
                 while (running)
-                {
-                    byte[] buffer = new byte[1024];
+                {                    
                     int n;
 
                     try
                     {
-                        //Logs.PrintDebug("Before Receive");
                         n = server.Receive(buffer);
-                        //Logs.PrintDebug("After Receive");
                     }
                     catch (SocketException)
                     {
@@ -138,7 +139,7 @@ namespace GeometryWarsGame.Game
                             // Somos nosotros, actualizamos nuestra posicion
                             if (item.Name == Program.GameWindow.MyUsername)
                             {
-                                Program.GameWindow.MyPlayer.Position = item.Position;
+                                Program.GameWindow.MyPlayer!.Position = item.Position;
                                 continue;
                             }
 
@@ -146,14 +147,14 @@ namespace GeometryWarsGame.Game
                             Player p = new Player(item.Name, item.Position.X, item.Position.Y);
                             p.Create();
 
-                            _ = Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y);
+                            Utils.Task.RunAndForget(Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y));
                         }
 
-                        _ = Send("100/1/" + Program.GameWindow.MyPlayer.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y);
+                        Utils.Task.RunAndForget(Send("100/1/" + Program.GameWindow.MyPlayer!.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y));
 
                         new TimerManager.Timer(5000, () =>
                         {
-                            _ = Send("100/3");
+                            Utils.Task.RunAndForget(Send("100/3"));
                         });
                         break;
 
@@ -204,13 +205,12 @@ namespace GeometryWarsGame.Game
                         break;
 
                     // Sincronizar posicion y heading jugadores
-                    // Formato: 100/5/<id>/<x>/<y>/<heading>/<health>
+                    // Formato: 100/5/<id>/<x>/<y>/<heading>
                     case 5:
                         id = Convert.ToInt32(message[2]);
                         x = Convert.ToSingle(message[3]);
                         y = Convert.ToSingle(message[4]);
                         float heading = Convert.ToSingle(message[5]);
-                        int health = Convert.ToInt32(message[6]);
 
                         Window.CallThreaded(() =>
                         {
@@ -224,7 +224,6 @@ namespace GeometryWarsGame.Game
                             p.Heading = heading;
                             p.Position.X = x;
                             p.Position.Y = y;
-                            //p.Health = health;
                         });
                         break;
 
@@ -248,7 +247,7 @@ namespace GeometryWarsGame.Game
                     // Formato: 100/7/<id>/<health>
                     case 7:
                         id = Convert.ToInt32(message[2]);
-                        health = Convert.ToInt32(message[3]);
+                        int health = Convert.ToInt32(message[3]);
 
                         Window.CallThreaded(() =>
                         {
@@ -303,16 +302,16 @@ namespace GeometryWarsGame.Game
                                 return;
                             }
 
-                            if (p.Id == Program.GameWindow.MyPlayer.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
                                 NotificationManager.Notify("You died with no more lifes :(", 4);
-                                //_ = new TimerManager.Timer(4000, () =>
-                                //{
-                                //    LocalPlayer.StartSpecMode();
-                                //});
+                                _ = new TimerManager.Timer(4000, () =>
+                                {
+                                    LocalPlayer.StartSpecMode();
+                                });
                             } else
                             {
-                                NotificationManager.Notify(p.Name + " died >:)", 5);
+                                NotificationManager.Notify(p.Name + " died >:)", 4);
                             }
 
                             p.Health = 0;
@@ -336,11 +335,11 @@ namespace GeometryWarsGame.Game
                             }
 
                             // if its me, show respawn timer
-                            if (p.Id == Program.GameWindow.MyPlayer.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
-                                NotificationManager.Notify("3", 1);
-                                NotificationManager.Notify("2", 1);
-                                NotificationManager.Notify("1", 1);
+                                //NotificationManager.Notify("3", 1);
+                                //NotificationManager.Notify("2", 1);
+                                //NotificationManager.Notify("1", 1);
                             }
 
                             // If we are not `Master`
@@ -357,13 +356,10 @@ namespace GeometryWarsGame.Game
                             float x = r.NextSingle() * World.Width;
                             float y = r.NextSingle() * World.Height;
 
-                            //p.Position.X = x;
-                            //p.Position.Y = y;
-
                             // After timeout, player respawns
                             _ = new TimerManager.Timer(3000, () =>
                             {
-                                _ = Send("100/11/" + p.Id + "/" + x + "/" + y);
+                                Utils.Task.RunAndForget(Send("100/11/" + p.Id + "/" + x + "/" + y));
                             });
                         });
                         break;
@@ -391,7 +387,7 @@ namespace GeometryWarsGame.Game
                             p.MarkedAsDead = false;
                             p.Health = 100;
 
-                            if (p.Id == Program.GameWindow.MyPlayer.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
                                 NotificationManager.Notify("Remaining lifes " + p.Lifes, 3);
                             }

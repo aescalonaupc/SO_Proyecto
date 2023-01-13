@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-//#define DEV 1
+#define DEV 1
 
 // Tamaño en caracteres de un string
 #define STR_SIZE 256
@@ -10,8 +10,12 @@
 // cualquier string que codifique un mensaje
 #define BUFFER_SIZE 512
 
+// Tamaño en bytes (que en ascii son caracteres...) de un buffer
+// usado en sockets para la transmision/recepcion de datos
+#define NETWORK_BUFFER_SIZE 8192
+
 // Puerto en que escuchara conexiones el servidor
-#define PUERTO 50059
+#define PUERTO 5059
 
 // Maximo numero de jugadores conectados
 #define MAX_CONECTADOS 100

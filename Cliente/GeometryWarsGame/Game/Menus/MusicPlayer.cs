@@ -47,6 +47,7 @@ namespace GeometryWarsGame.Game.Menus
 
             if (nowPlaying != null)
             {
+                nowPlaying.Position.Y = Program.GameWindow.Height - 100;
                 nowPlaying.Text = "🔊 Now Playing: " + (SoundManager.IsPlaying() ? SoundManager.CurrentTrack!.Name : "Nothing") + " 🔊";
             }
         }

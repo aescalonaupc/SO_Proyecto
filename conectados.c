@@ -144,6 +144,27 @@ void EstablecerEstadoConectado(TListaConectados* lista, int socket, int estado)
 }
 
 /*
+	Devuelve el estado del usuario conectado con el socket dado, -1 si no existe
+*/
+int ObtenerEstadoConectado(TListaConectados* lista, int socket)
+{
+	int pos = DamePosSocket(lista, socket);
+	
+	if (pos == -1)
+	{
+		return -1;
+	}
+	
+	int estado;
+	
+	pthread_mutex_lock(&mutexListaConectados);
+	estado = lista->conectados[pos].estado;
+	pthread_mutex_unlock(&mutexListaConectados);
+	
+	return estado;
+}
+
+/*
 	Crea una nueva partida en la tabla de partidas y devuelve su slot en la
 	tabla, -1 en caso de error o la tabla esta llena
 */
@@ -433,18 +454,14 @@ int ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[M
 	int i = 0;
 	for (; i < tabla->partidas[slot].jugadores.num; i++)
 	{
-		if (buffer != NULL)
-			buffer[i] = tabla->partidas[slot].jugadores.lista[i].socket;
+		buffer[i] = tabla->partidas[slot].jugadores.lista[i].socket;
 	}
 	
 	// Los huecos libres los dejaremos como -1 para identificarlos facilmente
-	if (buffer != NULL)
+	for (int j = tabla->partidas[slot].jugadores.num; j < MAX_JUGADORES_PARTIDA; j++)
 	{
-		for (int j = tabla->partidas[slot].jugadores.num; j < MAX_JUGADORES_PARTIDA; j++)
-		{
-			buffer[j] = -1;
-		}	
-	}
+		buffer[j] = -1;
+	}	
 	
 	pthread_mutex_unlock(&mutexTablaPartidas);
 	return i;

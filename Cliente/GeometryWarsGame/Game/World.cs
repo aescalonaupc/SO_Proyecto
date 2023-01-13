@@ -11,43 +11,43 @@ namespace GeometryWarsGame.Game
         /// <summary>
         /// Width of the camera
         /// </summary>
-        public static int CameraWidth => Program.GameWindow.Width;
+        private static int CameraWidth => Program.GameWindow.Width;
 
         /// <summary>
         /// Height of the camera
         /// </summary>
-        public static int CameraHeight => Program.GameWindow.Height;
+        private static int CameraHeight => Program.GameWindow.Height;
 
         /// <summary>
         /// Velocity at which the camera is moved
         /// </summary>
-        public static float CameraVelocity = 4.0f;
+        private static readonly float CameraVelocity = 4.0f;
 
         /// <summary>
         /// Width of the world
         /// </summary>
-        public static int Width { get; set; }
+        public static int Width { get; private set; }
 
         /// <summary>
         /// Height of the world
         /// </summary>
-        public static int Height { get; set; }
+        public static int Height { get; private set; }
 
         /// <summary>
         /// X at which the world is drawn in camera coordinates
         /// </summary>
-        public static float OffsetX { get; set; }
+        private static float OffsetX { get; set; }
 
         /// <summary>
         /// Y at which the world is drawn in camera coordinates
         /// </summary>
-        public static float OffsetY { get; set; }
+        private static float OffsetY { get; set; }
 
         private static readonly Brush BgBrush = new Pen(Utils.Ui.BackgroundColor).Brush;
 
         public static void Render(Graphics g)
         {
-            g.DrawRectangle(Utils.Ui.RedPen, OffsetX - 1, OffsetY - 1, Width + 1, Height + 1);
+            g.DrawRectangle(Utils.Ui.RedPen, OffsetX - 1, OffsetY - 1, Width + 2, Height + 2);
             g.FillRectangle(BgBrush, OffsetX, OffsetY, Width, Height);
 
             // kind of grid

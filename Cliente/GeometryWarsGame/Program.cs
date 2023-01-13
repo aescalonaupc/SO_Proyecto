@@ -4,6 +4,8 @@ namespace GeometryWarsGame
     {
         public static Game.Window GameWindow = new Game.Window();
 
+        public static bool SkipOpenLauncher = false;
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -11,8 +13,14 @@ namespace GeometryWarsGame
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            //Application.Run(GameWindow);
-            Application.Run(new Launcher.Window());
+
+            if (SkipOpenLauncher)
+            {
+                Application.Run(GameWindow);
+            } else
+            {
+                Application.Run(new Launcher.Window());
+            }
         }
     }
 }

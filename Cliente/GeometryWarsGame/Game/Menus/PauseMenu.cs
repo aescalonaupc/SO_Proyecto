@@ -25,13 +25,13 @@ namespace GeometryWarsGame.Game.Menus
             }
 
             pauseLabel = new Ui.Label("Pause menu", new Font("Arial", 24), new Vector2D(Window.InitialWidth / 2 - 120, 100));
-            pauseLabel.IsXCentered = true;
+            pauseLabel.CenterOnX();
 
             playButton = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 150), "Return to game");
-            playButton.IsXCentered = true;
+            playButton.CenterOnX();
 
             controlMusic = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 220), SoundManager.IsPlaying() ? "Stop music" : "Play music");
-            controlMusic.IsXCentered = true;
+            controlMusic.CenterOnX();
 
             playButton.Callback = () =>
             {

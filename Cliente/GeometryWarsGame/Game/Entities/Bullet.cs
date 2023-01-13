@@ -65,6 +65,11 @@ namespace GeometryWarsGame.Game.Entities
 
         public override void Update()
         {
+            if (State == EntityState.Destroyed)
+            {
+                return;
+            }
+
             Position.X += (float)(Velocity * Math.Cos(Utils.Maths.DegreesToRadians(Heading)));
             Position.Y += (float)(Velocity * Math.Sin(Utils.Maths.DegreesToRadians(Heading)));
 
@@ -107,7 +112,7 @@ namespace GeometryWarsGame.Game.Entities
                     // apply damage, notify new health and destroy bullet
                     e.Health -= Damage;
                     MarkForDestroy();
-                    _ = Network.Send("100/7/" + e.Id + "/" + e.Health + "$100/8/" + Id);
+                    Utils.Task.RunAndForget(Network.Send("100/7/" + e.Id + "/" + e.Health + "$100/8/" + Id));
                 }
             }
         }

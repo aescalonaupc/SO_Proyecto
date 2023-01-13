@@ -24,14 +24,9 @@ namespace GeometryWarsGame.Game.Ui
         public Color Color { get; set; } = Color.White;
 
         /// <summary>
-        /// If label is centered in X screen
+        /// String format used for centering on screen
         /// </summary>
-        public bool IsXCentered { get; set; } = false;
-
-        /// <summary>
-        /// If label is centered in Y screen
-        /// </summary>
-        public bool IsYCentered { get; set; } = false;
+        private StringFormat stringFormat = new StringFormat();
 
         public Label(string text, Font font, Vector2D position, int layer = 0) : base(position, layer)
         {
@@ -39,30 +34,28 @@ namespace GeometryWarsGame.Game.Ui
             Font = font;
         }
 
+        /// <summary>
+        /// Center on X position
+        /// </summary>
+        public void CenterOnX()
+        {
+            Position.X = 0;
+            stringFormat.Alignment = StringAlignment.Center;
+        }
+
+        /// <summary>
+        /// Center on Y position
+        /// </summary>
+        public void CenterOnY()
+        {
+            Position.Y = 0;
+            stringFormat.LineAlignment = StringAlignment.Center;
+        }
+
         public override void Render(Graphics g)
         {
-            if (IsXCentered || IsYCentered)
-            {
-                Rectangle rect = new Rectangle((int)Position.X, (int)Position.Y, Program.GameWindow.Width, Program.GameWindow.Height);
-                StringFormat format = new StringFormat();
-
-                if (IsXCentered)
-                {
-                    rect.X = 0;
-                    format.Alignment = StringAlignment.Center;
-                }
-
-                if (IsYCentered)
-                {
-                    rect.Y = 0;
-                    format.LineAlignment = StringAlignment.Center;
-                }
-
-                g.DrawString(Text, Font, new Pen(Color).Brush, rect, format);
-                return;
-            }
-
-            g.DrawString(Text, Font, new Pen(Color).Brush, Position.X, Position.Y);
+            Rectangle rect = new Rectangle((int)Position.X, (int)Position.Y, Program.GameWindow.Width, Program.GameWindow.Height);
+            g.DrawString(Text, Font, new Pen(Color).Brush, rect, stringFormat);
         }
 
         public override void Update() { }

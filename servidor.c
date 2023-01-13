@@ -2,6 +2,9 @@
 #include "conectados.h"
 #include "main.h"
 
+pthread_mutex_t mutexSocket = PTHREAD_MUTEX_INITIALIZER;
+int socketCount = 0;
+
 /* Empieza a ejecutar el servidor, entrar￡ en un bucle infinito escuchando */
 void EjecutarServidor()
 {
@@ -24,8 +27,6 @@ void EjecutarServidor()
 	if (listen(sock_listen, 4) < 0)
 		printf("No se pudo empezar a escuchar en el puerto especificado\n");
 	
-	int i = 0;
-	int sockets[MAX_CONECTADOS];
 	pthread_t thread;
 	
 	for (;;)
@@ -35,18 +36,30 @@ void EjecutarServidor()
 		sock_conn = accept(sock_listen, NULL, NULL);
 		printf("Recibida conexion\n");
 		
-		// sock_conn es el socket que usamos para este cliente
-		sockets[i] = sock_conn;
+		pthread_mutex_lock(&mutexSocket);
 		
-		// crear thread y decirle qu￩ tiene que hacer
-		pthread_create(&thread, NULL, AtenderCliente, &sockets[i]);
-		i++;
+		// Maximo de conectados simultaneamente alcanzado
+		if (socketCount >= MAX_CONECTADOS)
+		{
+			pthread_mutex_unlock(&mutexSocket);
+			close(sock_conn);
+			
+			printf("maximos clientes alcanzados!\n");
+			continue;
+		}
+		
+		socketCount++;
+		pthread_mutex_unlock(&mutexSocket);
+		
+		// crear thread y decirle que tiene que hacer
+		// sock_conn es el socket que usamos para este cliente
+		pthread_create(&thread, NULL, AtenderCliente, &sock_conn);
 	}
 }
 
 size_t _write(int fd, const void* buf, size_t nb)
 {
-	char dst[BUFFER_SIZE];
+	char dst[NETWORK_BUFFER_SIZE];
 	sprintf(dst, "%s$", (const char*)buf);
 	printf("_write (%d):%s\n", fd, dst);
 	return write(fd, dst, nb + 1);
@@ -57,15 +70,14 @@ void* AtenderCliente(void* socket)
 {
 	int sock_conn = *((int*) socket);
 	
-	char peticionEntrante[BUFFER_SIZE];
+	char peticionEntrante[NETWORK_BUFFER_SIZE];
 	char peticion[BUFFER_SIZE];
 	char* peticionPtr;
 	char peticionOriginal[BUFFER_SIZE];
-	char respuesta[BUFFER_SIZE];
+	char respuesta[NETWORK_BUFFER_SIZE];
 	
-	// Calculo que maximo llegaran 5 mensajes juntos,
-	// aunque solo he llegado a ver 3
-	const int MAX_MSG_PET = 5;
+	// Solo he llegado a ver 3, pero por si acaso...
+	const int MAX_MSG_PET = 10;
 	char mensajes[MAX_MSG_PET][BUFFER_SIZE];
 	
 	strcpy(peticionEntrante, "");
@@ -83,7 +95,7 @@ void* AtenderCliente(void* socket)
 	// al acabar la iteracion del bucle
 	int notificarConectados = 0;
 	
-	// Indica si notificar a los jugadores dentro de la partida de 'sock_conn'
+	// Indica si notificar a los jugadores dentro de la partida 'slotPartidaNotificar'
 	// el estado de la lista al acabar la iteracion del bucle
 	int notificarEnPartida = 0;
 	int slotPartidaNotificar = -1;
@@ -96,6 +108,13 @@ void* AtenderCliente(void* socket)
 		
 		if (ret == 0)
 		{
+			// Si esta en partida, la cosa cambia...
+			if (3 == ObtenerEstadoConectado(&listaConectados, sock_conn))
+			{
+				printf("goodbye!\n");
+				continue;
+			}
+			
 			int eliminado = EliminaConectado(&listaConectados, usuario);
 			
 			if (eliminado == 0)
@@ -223,7 +242,7 @@ void* AtenderCliente(void* socket)
 		// printf("Recibida una peticion de: %s\n", usuario);
 		
 		peticionEntrante[ret] = '\0';
-		// printf("La peticion es: %s\n", peticionEntrante);
+		printf("%s\n", peticionEntrante);
 		
 		int i = 0;
 		int j = 0;
@@ -663,17 +682,12 @@ void* AtenderCliente(void* socket)
 					printf("Empezada partida %d tipo de juego %d\n", slot, tipoJuego);
 					
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
 					sprintf(respuesta, "7/%d", tipoJuego);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						EstablecerEstadoConectado(&listaConectados, buffer[i], 3);
 						
 						if (buffer[i] == sock_conn)
@@ -695,15 +709,10 @@ void* AtenderCliente(void* socket)
 				} else if (gop == 1)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -714,15 +723,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 3)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -733,15 +737,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 5)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						if (buffer[i] == sock_conn)
 						{
 							continue;
@@ -757,15 +756,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 6)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -776,15 +770,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 7)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						if (buffer[i] == sock_conn)
 						{
 							continue;
@@ -800,15 +789,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 8)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -820,15 +804,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 9 || gop == 10)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -839,15 +818,10 @@ void* AtenderCliente(void* socket)
 				else if (gop == 11)
 				{
 					int buffer[MAX_JUGADORES_PARTIDA];
-					ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					for (int i = 0; i < n; i++)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
@@ -916,6 +890,10 @@ void* AtenderCliente(void* socket)
 		}
 		
 	}
+	
+	pthread_mutex_lock(&mutexSocket);
+	socketCount--;
+	pthread_mutex_unlock(&mutexSocket);
 	
 	close(sock_conn);
 }

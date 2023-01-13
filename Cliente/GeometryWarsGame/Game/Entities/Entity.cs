@@ -105,6 +105,7 @@ namespace GeometryWarsGame.Game.Entities
         public void Destroy()
         {
             EntityManager.RemoveEntity(this);
+            State = EntityState.Destroyed;
         }
 
         /// <summary>
@@ -142,6 +143,7 @@ namespace GeometryWarsGame.Game.Entities
         None,
         Created,
         Spawned,
-        Destroyable
+        Destroyable,
+        Destroyed
     }
 }

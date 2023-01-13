@@ -150,13 +150,21 @@ namespace GeometryWarsGame.Game
             // Double buffered graphics helps reduce flickering
             bgContext.MaximumBuffer = new Size(Width + 1, Height + 1);
 
-            //Logs.Initialize();
-            Network.Initialize();
+            Logs.Initialize();
 
             // World is a "worldWidth x worldHeight" rectangle initially in the middle of the camera
             // `OffsetX` and `OffsetY` represent the cam displacement from the top-left world corner
             const int worldWidth = 1300, worldHeight = 1300;
             World.SetWorld(worldWidth, worldHeight, InitialWidth / 2 - worldWidth / 2, InitialHeight / 2 - worldHeight / 2);
+
+            // Set common decimal separator, fix float format issues on different PCs
+            if (System.Globalization.CultureInfo.DefaultThreadCurrentCulture == null)
+            {
+                System.Globalization.CultureInfo.DefaultThreadCurrentCulture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+            }
+
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture.NumberFormat.NumberGroupSeparator = ".";
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture.NumberFormat.NumberDecimalSeparator = ",";
 
             KeyDown += OnNativeKeyDown;
             KeyUp += OnNativeKeyUp;
@@ -174,7 +182,11 @@ namespace GeometryWarsGame.Game
         private void OnGameStartEvent()
         {
             {
-                return;
+                if (!Program.SkipOpenLauncher)
+                {
+                    return;
+                }
+
                 MyUsername = "test";
                 MyId = 1;
 
@@ -399,7 +411,7 @@ namespace GeometryWarsGame.Game
             if (Master)
             {
                 Logs.PrintDebug("Notify server game is starting");
-                _ = Network.Send("100/0/" + (int)GameType);
+                Utils.Task.RunAndForget(Network.Send("100/0/" + (int)GameType));
             }
 
             SoundManager.PlayIngame();
@@ -494,6 +506,7 @@ namespace GeometryWarsGame.Game
                     SetGameState(GameState.PauseMenu, true);
                 } else if (IsGameState(GameState.PauseMenu))
                 {
+                    Menus.PauseMenu.Hide();
                     SetGameState(GameState.PauseMenu, false);
                 }
             }

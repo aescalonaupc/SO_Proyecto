@@ -67,7 +67,6 @@ namespace GeometryWarsGame.Game
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.DrawPath(outline, gp);
             g.FillPath(Utils.Ui.WhiteBrush, gp);
-            g.ResetTransform();
         }
 
     }

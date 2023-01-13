@@ -26,6 +26,11 @@ namespace GeometryWarsGame.Game.Entities
         public Color Color { get; set; } = Utils.Ui.PlayerColor;
 
         /// <summary>
+        /// Brush used to paint the player from color
+        /// </summary>
+        private Brush Brush => new Pen(Color).Brush;
+
+        /// <summary>
         /// Name of the player
         /// </summary>
         public string Name { get; set; } = "";
@@ -70,7 +75,7 @@ namespace GeometryWarsGame.Game.Entities
         /// </summary>
         public void Shoot()
         {
-            _ = Network.Send("100/6/" + Id + "/" + Heading + "/" + Position.X + "/" + Position.Y);
+            Utils.Task.RunAndForget(Network.Send("100/6/" + Id + "/" + Heading + "/" + Position.X + "/" + Position.Y));
         }
 
         public override Vector2D GetReferenceCoordinate()
@@ -80,9 +85,14 @@ namespace GeometryWarsGame.Game.Entities
 
         public override void Update()
         {
+            if (State == EntityState.Destroyed)
+            {
+                return;
+            }
+
             if (Program.GameWindow.Master)
             {
-                if (Health <= 0 && !MarkedAsDead)
+                if (Dead && !MarkedAsDead)
                 {
                     // The player has died
                     Lifes--;
@@ -94,13 +104,13 @@ namespace GeometryWarsGame.Game.Entities
                     // notify about the permanent death and lose
                     if (Lifes <= 0)
                     {
-                        _ = Network.Send("100/9/" + Id);
+                        Utils.Task.RunAndForget(Network.Send("100/9/" + Id));
                         return;
                     }
 
                     // If the player has enough lifes,
                     // notify about the death and remaining lifes
-                    _ = Network.Send("100/10/" + Id + "/" + Lifes);
+                    Utils.Task.RunAndForget(Network.Send("100/10/" + Id + "/" + Lifes));
 
                     // Note: on networking thread, as soon as we receive
                     // the ack of player death (packet 10), we will cause player respawn
@@ -136,12 +146,12 @@ namespace GeometryWarsGame.Game.Entities
                 g.RotateTransform(Heading);
 
                 // Base
-                g.FillRectangle(new Pen(Color).Brush, -Scale / 2, -Scale / 2, Scale, Scale);
+                g.FillRectangle(Brush, -Scale / 2, -Scale / 2, Scale, Scale);
 
                 // Cannon
                 float cannonWidth = 20f;
                 float cannonHeight = 5f;
-                g.FillRectangle(new Pen(Color.White).Brush, 0, -cannonHeight / 2, cannonWidth, cannonHeight);
+                g.FillRectangle(Utils.Ui.WhitePen.Brush, 0, -cannonHeight / 2, cannonWidth, cannonHeight);
 
                 // Reset rotation and origin translation
                 g.ResetTransform();

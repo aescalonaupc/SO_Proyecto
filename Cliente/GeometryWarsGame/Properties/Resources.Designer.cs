@@ -63,24 +63,6 @@ namespace GeometryWarsGame.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.IO.UnmanagedMemoryStream similar a System.IO.MemoryStream.
         /// </summary>
-        internal static System.IO.UnmanagedMemoryStream game1 {
-            get {
-                return ResourceManager.GetStream("game1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Busca un recurso adaptado de tipo System.IO.UnmanagedMemoryStream similar a System.IO.MemoryStream.
-        /// </summary>
-        internal static System.IO.UnmanagedMemoryStream game2 {
-            get {
-                return ResourceManager.GetStream("game2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Busca un recurso adaptado de tipo System.IO.UnmanagedMemoryStream similar a System.IO.MemoryStream.
-        /// </summary>
         internal static System.IO.UnmanagedMemoryStream game3 {
             get {
                 return ResourceManager.GetStream("game3", resourceCulture);
