@@ -157,7 +157,7 @@ namespace GeometryWarsGame.Game.Entities
                     Heading = f;
                 }
 
-                if (Time.GetReferenceMillis() - lastSync > 40)
+                if (Time.GetReferenceMillis() - lastSync > 10)
                 {
                     Utils.Task.RunAndForget(Network.Send("100/5/" + Id + "/" + Position.X + "/" + Position.Y + "/" + Heading));
                     lastSync = Time.GetReferenceMillis();

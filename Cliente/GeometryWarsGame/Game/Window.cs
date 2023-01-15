@@ -464,10 +464,11 @@ namespace GeometryWarsGame.Game
         /// <summary>
         /// Closes the game window and (theoretically) returns to launcher
         /// </summary>
-        public void CloseGame(string reason = "")
+        public static void CloseGame(string reason = "")
         {
             MessageBox.Show("El juego se ha cerrado. Motivo: " + reason);
-            Close();
+            Logs.PrintDebug("Closing game");
+            Environment.Exit(0);
         }
 
         /// <summary>

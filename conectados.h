@@ -84,6 +84,7 @@ int EstanTodosJugadoresConfirmados(TTablaPartidas* tabla, int slot);
 void EliminaPartida(TTablaPartidas* tabla, int slot);
 int ObtenerPartidaJugador(TTablaPartidas* tabla, int socket);
 void MarcarPartidaEmpezada(TTablaPartidas* tabla, int slot);
+int EstaPartidaEmpezada(TTablaPartidas* tabla, int slot);
 void EstablecerPartidaId(TTablaPartidas* tabla, int slot, int id);
 void EstablecerPartidaLider(TTablaPartidas* tabla, int slot, int socket);
 void EstablecerPartidaTipo(TTablaPartidas* tabla, int slot, int tipo);

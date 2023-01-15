@@ -59,9 +59,14 @@ void EjecutarServidor()
 
 size_t _write(int fd, const void* buf, size_t nb)
 {
+	if (fd == -1)
+	{
+		return 0;
+	}
+	
 	char dst[NETWORK_BUFFER_SIZE];
 	sprintf(dst, "%s$", (const char*)buf);
-	printf("_write (%d):%s\n", fd, dst);
+	//printf("_write (%d):%s\n", fd, dst);
 	return write(fd, dst, nb + 1);
 }
 
@@ -103,105 +108,92 @@ void* AtenderCliente(void* socket)
 	while (acabado == 0)
 	{
 		ret = read(sock_conn, peticionEntrante, sizeof(peticionEntrante));
-		
+
 		printf("ret %d from %s (%d)\n", ret, usuario, sock_conn);
 		
 		if (ret == 0)
 		{
-			// Si esta en partida, la cosa cambia...
-			if (3 == ObtenerEstadoConectado(&listaConectados, sock_conn))
-			{
-				printf("goodbye!\n");
-				continue;
-			}
+			EliminaConectado(&listaConectados, usuario);
 			
-			int eliminado = EliminaConectado(&listaConectados, usuario);
+			// Si el jugador que se desconecta estaba en una partida
+			// tenemos que realizar una serie de comprobaciones:
+			//
+			// 1. Si esta en una sala y el es el lider: la sala se elimina
+			// 2. Si esta en sala y el no es el lider:
+			//   2.1. Si hay +2 jugadores en ella, abandona la sala y ya
+			//   2.2. Si hay 2 jugadores (o menos?), la sala se elimina
+			// 3. Si esta en partida y el es el lider: la partida acaba y nadie gana
+			// 4. Si esta en partida y el no es el lider: Se elimina de la partida
+			//    y se notifica al lider de la partida el abandono, el decidira
+			//    en base al estado del juego (p. ej. jugadores vivos) que le
+			//    pasa a la partida
 			
-			if (eliminado == 0)
-			{
-				printf("desconectado usuario %s\n", usuario);
-			}
-			
-			// Tenemos que eliminarlo de la partida si es que estaba
 			int slot = ObtenerPartidaJugador(&tablaPartidas, sock_conn);
 			if (slot != -1)
 			{
-				printf("El jugador estaba en una partida\n");
-				
 				int lider = ObtenerLiderPartida(&tablaPartidas, slot);
 				
 				int buffer[MAX_JUGADORES_PARTIDA];
 				int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 				
-				// Si el jugador no es el lider de la partida
-				// simplemente le eliminamos y listo
-				// Pero si la sala se quedara vacia (solo 1 jugador), 
-				// tambien eliminamos la sala
-				if (lider != sock_conn && n > 2)
+				int empezada = EstaPartidaEmpezada(&tablaPartidas, slot);
+				
+				if (empezada == 1)
 				{
-					printf("Solo se elimina de la sala\n");
-					
-					// Lo eliminamos de la partida
-					EliminaJugadorEnPartida(&tablaPartidas, slot, sock_conn);
-					
-					// Notificamos a la gente de la partida que se ha salido
-					{
-						char jugadores[BUFFER_SIZE];
-						strcpy(jugadores, "");
-						
-						ObtenerNombresJugadoresPartida(&listaConectados, &tablaPartidas, slot, jugadores);
-						sprintf(respuesta, "44/%s", jugadores);
-						
-						for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
-						{
-							if (buffer[i] == -1)
-							{
-								continue;
-							}
-							
-							if (buffer[i] == sock_conn)
-							{
-								continue;
-							}
-							
-							_write(buffer[i], respuesta, strlen(respuesta));
-						}
-					};
-				} else
-				// Si es el lider, tenemos que eliminar la partida
+					printf("la partida estaba empezada\n");
+				}
+				
+				// Casos 1. y 3.
+				//
+				// La partida/sala se elimina. Nadie gana. Se notifica al resto de jugadores
+				
+				if (lider == sock_conn)
 				{
-					printf("Se debe eliminar la partida entera\n");
+					printf("Se ha desconectado el lider\n");
 					
-					for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+					if (empezada == 1)
 					{
-						if (buffer[i] == -1)
-						{
-							continue;
-						}
-						
-						if (buffer[i] == sock_conn)
-						{
-							continue;
-						}
-						
-						EstablecerEstadoConectado(&listaConectados, buffer[i], 0);
+						// registrar partida en la base de datos...	
 					}
 					
-					// Eliminamos la partida
 					EliminaPartida(&tablaPartidas, slot);
 					
-					// Notificamos que la partida ahora esta vacia a los
-					// jugadores que aun quedan conectados
+					// Si la partida estaba empezada, notificamos al resto de jugadores
+					if (empezada == 1)
 					{
-						sprintf(respuesta, "44/0");
-						
-						for (int i = 0; i < MAX_JUGADORES_PARTIDA; i++)
+						// `gop` 100 = partida cancelada, lider abandona
+						sprintf(respuesta, "100/100");
+						printf("se envia 100/100 a %d jugadores\n", n);
+						for (int i = 0; i < n; i++)
 						{
-							if (buffer[i] == -1)
+							if (buffer[i] == sock_conn)
 							{
 								continue;
 							}
 							
+							printf("Enviando cierre del juego a %d\n", buffer[i]);
+							_write(buffer[i], respuesta, strlen(respuesta));
+						}
+						
+					} else
+					// Si no estaba empezada, podemos simplemente mandar la lista
+					// de los jugadores vacia
+					{
+						// Establecemos su estado al default "disponible"
+						for (int i = 0; i < n; i++)
+						{
+							if (buffer[i] == sock_conn)
+							{
+								continue;
+							}
+							
+							EstablecerEstadoConectado(&listaConectados, buffer[i], 0);
+						}
+						
+						// Indicamos la sala vacia
+						sprintf(respuesta, "44/0");
+						for (int i = 0; i < n; i++)
+						{							
 							if (buffer[i] == sock_conn)
 							{
 								continue;
@@ -209,8 +201,89 @@ void* AtenderCliente(void* socket)
 							
 							_write(buffer[i], respuesta, strlen(respuesta));
 						}
-					};
+					}
 				}
+				
+				// Casos 2. y 4.
+				//
+				// Si el jugador no es el lider, le eliminamos de la partida
+				// Si no estaba empezada, le sacamos de la sala, si son 2 o menos
+				// la sala se elimina
+				//
+				// Si ya estaba empezada, la logica de acabar la partida recae
+				// en el lider de la partida
+				
+				else
+				{
+					// Si la partida esta empezada, notificamos al lider
+					// el abandono y el procesara la logica para determinar
+					// si la partida se acaba, notificar al resto visualmente, etc
+					if (empezada == 1)
+					{
+						// `gop` 101 = jugador abandona
+						sprintf(respuesta, "100/101/%s", usuario);
+						_write(lider, respuesta, strlen(respuesta));
+					}
+					
+					// Si no esta empezada, deberemos actualizar estados,
+					// listas, eliminar la partida, etc
+					else
+					{
+						// Hay mas de 2 jugadores, por tanto podemos simplemente
+						// eliminarle de la sala/partida y ya
+						if (n > 2)
+						{
+							// Lo eliminamos de la partida
+							EliminaJugadorEnPartida(&tablaPartidas, slot, sock_conn);
+							
+							// Notificamos a la gente de la partida que se ha salido
+							char jugadores[BUFFER_SIZE];
+							strcpy(jugadores, "");
+							
+							ObtenerNombresJugadoresPartida(&listaConectados, &tablaPartidas, slot, jugadores);
+							sprintf(respuesta, "44/%s", jugadores);
+							
+							for (int i = 0; i < n; i++)
+							{
+								if (buffer[i] == sock_conn)
+								{
+									continue;
+								}
+								
+								_write(buffer[i], respuesta, strlen(respuesta));
+							}
+						}
+						
+						// Hay 2 (o menos?) jugadores en la partida
+						else
+						{
+							EliminaPartida(&tablaPartidas, slot);
+							
+							// Establecemos su estado al default "disponible"
+							for (int i = 0; i < n; i++)
+							{
+								if (buffer[i] == sock_conn)
+								{
+									continue;
+								}
+								
+								EstablecerEstadoConectado(&listaConectados, buffer[i], 0);
+							}
+							
+							// Indicamos la sala vacia
+							sprintf(respuesta, "44/0");
+							for (int i = 0; i < n; i++)
+							{							
+								if (buffer[i] == sock_conn)
+								{
+									continue;
+								}
+								
+								_write(buffer[i], respuesta, strlen(respuesta));
+							}
+						}
+					}
+				} 
 			}
 			
 			// Debemos manejarlo aqui porque no llegara al final del bucle
@@ -232,7 +305,7 @@ void* AtenderCliente(void* socket)
 				}
 				pthread_mutex_unlock(&mutexListaConectados);
 			};
-				
+			
 			acabado = 1;
 			
 			// Abandonamos el bucle global con un continue;
@@ -888,14 +961,11 @@ void* AtenderCliente(void* socket)
 				slotPartidaNotificar = -1;
 			}
 		}
-		
 	}
 	
 	pthread_mutex_lock(&mutexSocket);
 	socketCount--;
 	pthread_mutex_unlock(&mutexSocket);
-	
-	close(sock_conn);
 }
 
 /*

@@ -307,14 +307,14 @@ namespace GeometryWarsGame.Game
 
                             if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
-                                NotificationManager.Notify("You died with no more lifes :(", 4);
+                                NotificationManager.Notify("Te has quedado sin vidas :(", 4);
                                 _ = new TimerManager.Timer(4000, () =>
                                 {
                                     LocalPlayer.StartSpecMode();
                                 });
                             } else
                             {
-                                NotificationManager.Notify(p.Name + " died >:)", 4);
+                                NotificationManager.Notify(p.Name + " ha muerto >:)", 4);
                             }
 
                             p.Health = 0;
@@ -340,9 +340,9 @@ namespace GeometryWarsGame.Game
                             // if its me, show respawn timer
                             if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
-                                //NotificationManager.Notify("3", 1);
-                                //NotificationManager.Notify("2", 1);
-                                //NotificationManager.Notify("1", 1);
+                                NotificationManager.Notify("3", 1);
+                                NotificationManager.Notify("2", 1);
+                                NotificationManager.Notify("1", 1);
                             }
 
                             // If we are not `Master`
@@ -392,9 +392,24 @@ namespace GeometryWarsGame.Game
 
                             if (p.Id == Program.GameWindow.MyPlayer!.Id)
                             {
-                                NotificationManager.Notify("Remaining lifes " + p.Lifes, 3);
+                                NotificationManager.Notify("Vidas restantes " + p.Lifes, 3);
                             }
                         });
+                        break;
+
+                    // El lider de la partida se ha desconectado
+                    // Se debe cerrar el juego
+                    // Formato: 100/100
+                    case 100:
+                        Logs.PrintDebug("Master disconnected, requesting game close");
+                        Window.CloseGame("El anfitrion de la partida se ha desconectado :(");
+                        break;
+
+                    // Un jugador se ha desconectado y debemos tomar accion
+                    // Teoricamente solo recibimos este mensaje si somos `Master`
+                    // Formato: 100/101/<usuario>
+                    case 101:
+
                         break;
                 }
             }

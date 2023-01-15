@@ -451,8 +451,7 @@ int ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[M
 		return 0;
 	}
 	
-	int i = 0;
-	for (; i < tabla->partidas[slot].jugadores.num; i++)
+	for (int i = 0; i < tabla->partidas[slot].jugadores.num; i++)
 	{
 		buffer[i] = tabla->partidas[slot].jugadores.lista[i].socket;
 	}
@@ -461,10 +460,12 @@ int ObtenerSocketsJugadoresPartida(TTablaPartidas* tabla, int slot, int buffer[M
 	for (int j = tabla->partidas[slot].jugadores.num; j < MAX_JUGADORES_PARTIDA; j++)
 	{
 		buffer[j] = -1;
-	}	
+	}
 	
+	int n = tabla->partidas[slot].jugadores.num;
 	pthread_mutex_unlock(&mutexTablaPartidas);
-	return i;
+	
+	return n;
 }
 
 /*
@@ -626,6 +627,12 @@ void ObtenerNombresJugadoresPartida(TListaConectados* lista, TTablaPartidas* tab
 				continue;
 			}
 			
+			// El jugador debe estar en la sala, no pendiente (o en partida?)
+			if (2 != ObtenerEstadoConectado(lista, socket))
+			{
+				continue;
+			}
+			
 			strcat(respuesta, nombre);
 			strcat(respuesta, ",");
 		}
@@ -654,4 +661,33 @@ void MarcarPartidaEmpezada(TTablaPartidas* tabla, int slot)
 	
 	tabla->partidas[slot].empezada = 1;
 	pthread_mutex_unlock(&mutexTablaPartidas);
+}
+
+/*
+	Devuelve si una partida esta empezada o no
+*/
+int EstaPartidaEmpezada(TTablaPartidas* tabla, int slot)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return 0;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	if (tabla->partidas[slot].creada != 1)
+	{
+		pthread_mutex_unlock(&mutexTablaPartidas);
+		return 0;
+	}
+	
+	int estado = 0;
+	
+	if (tabla->partidas[slot].empezada == 1)
+	{
+		estado = 1;
+	}
+	
+	pthread_mutex_unlock(&mutexTablaPartidas);
+	return estado;
 }

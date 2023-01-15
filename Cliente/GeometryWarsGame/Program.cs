@@ -4,7 +4,7 @@ namespace GeometryWarsGame
     {
         public static Game.Window GameWindow = new Game.Window();
 
-        public const bool SkipOpenLauncher = true;
+        public const bool SkipOpenLauncher = false;
 
         /// <summary>
         ///  The main entry point for the application.

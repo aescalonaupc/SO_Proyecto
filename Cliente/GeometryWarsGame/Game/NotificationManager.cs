@@ -26,8 +26,6 @@ namespace GeometryWarsGame.Game
         {
             Notification not = new Notification(text, duration);
             notifications.Enqueue(not);
-
-            Logs.PrintDebug("Notification queue size: " + notifications.Count);
         }
 
         public static void Render(Graphics g)
