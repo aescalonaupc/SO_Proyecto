@@ -966,6 +966,7 @@ void* AtenderCliente(void* socket)
 	pthread_mutex_lock(&mutexSocket);
 	socketCount--;
 	pthread_mutex_unlock(&mutexSocket);
+	close(sock_conn);
 }
 
 /*
