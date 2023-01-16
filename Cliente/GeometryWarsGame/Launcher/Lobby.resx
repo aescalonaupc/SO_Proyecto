@@ -58,10 +58,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label5.Text" xml:space="preserve">
-    <value>El modo All vs All enfrentará a los jugadores de la sala actual entre ellos. Cada jugador tendrá 3 vidas, ganará el último jugador en sobrevivir.
+    <value>El modo All vs All enfrentará a los jugadores de la sala actual entre ellos. Cada jugador tendrá 3 vidas, ganará el último jugador en sobrevivir. El mínimo de jugadores es 2, y el máximo 5.
 
-El modo Co-op vs IA enfrentará a los jugadores de la sala contra enemigos controlados por el ordenador. Cada jugador tendrá solo una vida.
-
-El modo Sandbox es un modo de pruebas para hacerse a los controles del juego y probar nuevas mecánicas.</value>
+El modo Sandbox es un modo de pruebas para hacerse a los controles del juego y probar nuevas mecánicas. No hay mínimo de jugadores, y el máximo es 5.</value>
   </data>
 </root>

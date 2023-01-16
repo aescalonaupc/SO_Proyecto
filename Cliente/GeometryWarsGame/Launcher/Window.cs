@@ -257,6 +257,7 @@ namespace GeometryWarsGame.Launcher
             registerForm.SetSocket(serverSocket);
             Hide();
             registerForm.ShowDialog();
+            Show();
         }
 
         private void Window_FormClosing(object sender, FormClosingEventArgs e)

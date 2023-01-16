@@ -229,6 +229,7 @@ namespace GeometryWarsGame.Launcher
                                         conectadosGrid.Columns[2].Visible = true;
 
                                         soyLider = true;
+                                        allBtn.Enabled = false;
 
                                         if (before > 0)
                                         {
@@ -244,6 +245,11 @@ namespace GeometryWarsGame.Launcher
                                         {
                                             chatBox.Items.Add("** has creado la sala **");
                                             chatBox.Items.Add("[ chat global desactivado ]");
+                                        }
+
+                                        if (soyLider)
+                                        {
+                                            allBtn.Enabled = true;
                                         }
                                     }
 
@@ -291,6 +297,7 @@ namespace GeometryWarsGame.Launcher
                                 {
                                     serverSocket.Send(Encoding.ASCII.GetBytes("5/" + partidaId + "/1"));
                                     soyLider = false;
+                                    allBtn.Enabled = false;
 
                                     Invoke(() =>
                                     {

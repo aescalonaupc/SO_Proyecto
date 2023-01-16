@@ -57,7 +57,9 @@
             this.passTb.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.passTb.Location = new System.Drawing.Point(307, 285);
             this.passTb.Margin = new System.Windows.Forms.Padding(2);
+            this.passTb.MaxLength = 256;
             this.passTb.Name = "passTb";
+            this.passTb.PasswordChar = '*';
             this.passTb.PlaceholderText = "Password";
             this.passTb.Size = new System.Drawing.Size(176, 29);
             this.passTb.TabIndex = 2;

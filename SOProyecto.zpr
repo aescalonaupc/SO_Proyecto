@@ -20,7 +20,7 @@ path=main.c
 cursor=19:12
 [source]
 path=servidor.c
-cursor=205:4
+cursor=987:1
 open=true
 [source]
 path=conectados.c

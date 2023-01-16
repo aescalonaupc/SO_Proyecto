@@ -379,7 +379,7 @@ void* AtenderCliente(void* socket)
 				strcpy(password, p);
 				
 				int estaUsuarioConectado = DamePos(&listaConectados, usuario);
-				if(estaUsuarioConectado == -1)
+				if (estaUsuarioConectado == -1)
 				{
 					printf("Login: usuario %s, contrasena %s\n", usuario, password);
 					int resultado = Login(usuario, password);
@@ -441,7 +441,16 @@ void* AtenderCliente(void* socket)
 							strcpy(respuesta, "2/NOK/2");
 						} else
 						{
-							sprintf(respuesta, "2/OK/%s/%d", usuario, resultado);
+							int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
+							if (solucion == 0)
+							{
+								notificarConectados = 1;
+								sprintf(respuesta, "2/OK/%s/%d", usuario, resultado);
+							} else
+							{
+								printf("No se ha guardado nada\n");
+								sprintf(respuesta, "2/NOK/2");
+							}
 						}
 					}
 				}
@@ -734,7 +743,7 @@ void* AtenderCliente(void* socket)
 				
 				int slot = ObtenerPartidaJugador(&tablaPartidas, sock_conn);
 				
-				if (slot == -1)
+				if (gop != 0 && slot == -1)
 				{
 					printf("partida no existente!\n");
 					continue;
@@ -748,6 +757,15 @@ void* AtenderCliente(void* socket)
 					int tipoJuego;
 					p = strtok(NULL, "/");
 					tipoJuego = atoi(p);
+					
+					// Sucede cuando un solo jugador elige 'Sandbox'
+					// Creamos una partida para ese jugador
+					if (tipoJuego == 0 && slot == -1)
+					{
+						slot = IntroducePartida(&tablaPartidas);
+						IntroduceJugadorEnPartida(&tablaPartidas, slot, sock_conn);
+						MarcarJugadorConfirmado(&tablaPartidas, slot, sock_conn);
+					}
 					
 					EstablecerPartidaTipo(&tablaPartidas, slot, tipoJuego);
 					MarcarPartidaEmpezada(&tablaPartidas, slot);

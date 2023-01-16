@@ -34,7 +34,6 @@
             this.conectadosGrid = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.salirSalaBtn = new System.Windows.Forms.Button();
-            this.iaBtn = new System.Windows.Forms.Button();
             this.labelSalaGrid = new System.Windows.Forms.Label();
             this.allBtn = new System.Windows.Forms.Button();
             this.salaGrid = new System.Windows.Forms.DataGridView();
@@ -79,10 +78,10 @@
             this.sandboxBtn.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke;
             this.sandboxBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.sandboxBtn.ForeColor = System.Drawing.Color.Transparent;
-            this.sandboxBtn.Location = new System.Drawing.Point(473, 600);
+            this.sandboxBtn.Location = new System.Drawing.Point(215, 486);
             this.sandboxBtn.Margin = new System.Windows.Forms.Padding(2);
             this.sandboxBtn.Name = "sandboxBtn";
-            this.sandboxBtn.Size = new System.Drawing.Size(158, 38);
+            this.sandboxBtn.Size = new System.Drawing.Size(201, 39);
             this.sandboxBtn.TabIndex = 4;
             this.sandboxBtn.Text = "Sandbox";
             this.sandboxBtn.UseVisualStyleBackColor = false;
@@ -107,11 +106,11 @@
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Transparent;
             this.groupBox1.Controls.Add(this.salirSalaBtn);
-            this.groupBox1.Controls.Add(this.iaBtn);
             this.groupBox1.Controls.Add(this.labelSalaGrid);
             this.groupBox1.Controls.Add(this.allBtn);
             this.groupBox1.Controls.Add(this.salaGrid);
             this.groupBox1.Controls.Add(this.conectadosGrid);
+            this.groupBox1.Controls.Add(this.sandboxBtn);
             this.groupBox1.ForeColor = System.Drawing.Color.White;
             this.groupBox1.Location = new System.Drawing.Point(34, 113);
             this.groupBox1.Name = "groupBox1";
@@ -136,21 +135,6 @@
             this.salirSalaBtn.UseVisualStyleBackColor = false;
             this.salirSalaBtn.Visible = false;
             this.salirSalaBtn.Click += new System.EventHandler(this.salirSalaBtn_Click);
-            // 
-            // iaBtn
-            // 
-            this.iaBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
-            this.iaBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.iaBtn.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke;
-            this.iaBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.iaBtn.ForeColor = System.Drawing.Color.Transparent;
-            this.iaBtn.Location = new System.Drawing.Point(215, 486);
-            this.iaBtn.Margin = new System.Windows.Forms.Padding(2);
-            this.iaBtn.Name = "iaBtn";
-            this.iaBtn.Size = new System.Drawing.Size(201, 39);
-            this.iaBtn.TabIndex = 8;
-            this.iaBtn.Text = "Co-op vs IA";
-            this.iaBtn.UseVisualStyleBackColor = false;
             // 
             // labelSalaGrid
             // 
@@ -249,7 +233,7 @@
             this.groupBox3.ForeColor = System.Drawing.Color.White;
             this.groupBox3.Location = new System.Drawing.Point(473, 372);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(434, 220);
+            this.groupBox3.Size = new System.Drawing.Size(434, 278);
             this.groupBox3.TabIndex = 12;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Consejos y Ayuda";
@@ -259,7 +243,7 @@
             this.helpLabel.ForeColor = System.Drawing.Color.Silver;
             this.helpLabel.Location = new System.Drawing.Point(6, 25);
             this.helpLabel.Name = "helpLabel";
-            this.helpLabel.Size = new System.Drawing.Size(422, 192);
+            this.helpLabel.Size = new System.Drawing.Size(422, 250);
             this.helpLabel.TabIndex = 0;
             this.helpLabel.Text = "Ahora mismo no estás en ninguna sala, espera que alguno de los jugadores te invit" +
     "e a la suya o invita tú a alguien.";
@@ -269,7 +253,7 @@
             this.groupBox4.Controls.Add(this.musicControlBtn);
             this.groupBox4.Controls.Add(this.nowPlayingLabel);
             this.groupBox4.ForeColor = System.Drawing.Color.White;
-            this.groupBox4.Location = new System.Drawing.Point(913, 473);
+            this.groupBox4.Location = new System.Drawing.Point(913, 531);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(319, 119);
             this.groupBox4.TabIndex = 13;
@@ -309,7 +293,7 @@
             this.groupBox5.ForeColor = System.Drawing.Color.White;
             this.groupBox5.Location = new System.Drawing.Point(913, 113);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(319, 354);
+            this.groupBox5.Size = new System.Drawing.Size(319, 412);
             this.groupBox5.TabIndex = 14;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Chat";
@@ -323,7 +307,7 @@
             this.chatSendBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chatSendBtn.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.chatSendBtn.ForeColor = System.Drawing.Color.Transparent;
-            this.chatSendBtn.Location = new System.Drawing.Point(247, 311);
+            this.chatSendBtn.Location = new System.Drawing.Point(247, 377);
             this.chatSendBtn.Margin = new System.Windows.Forms.Padding(2);
             this.chatSendBtn.Name = "chatSendBtn";
             this.chatSendBtn.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -338,7 +322,8 @@
             // 
             this.chatTb.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
             this.chatTb.ForeColor = System.Drawing.Color.Silver;
-            this.chatTb.Location = new System.Drawing.Point(11, 311);
+            this.chatTb.Location = new System.Drawing.Point(11, 377);
+            this.chatTb.MaxLength = 256;
             this.chatTb.Name = "chatTb";
             this.chatTb.PlaceholderText = " Hello...";
             this.chatTb.Size = new System.Drawing.Size(231, 29);
@@ -354,7 +339,7 @@
             this.chatBox.ItemHeight = 21;
             this.chatBox.Location = new System.Drawing.Point(11, 28);
             this.chatBox.Name = "chatBox";
-            this.chatBox.Size = new System.Drawing.Size(297, 273);
+            this.chatBox.Size = new System.Drawing.Size(297, 336);
             this.chatBox.TabIndex = 0;
             // 
             // Lobby
@@ -371,7 +356,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.sandboxBtn);
             this.Controls.Add(this.welcomeLabel);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.ForeColor = System.Drawing.Color.White;
@@ -404,7 +388,6 @@
         private Label labelSalaGrid;
         private Button allBtn;
         private DataGridView salaGrid;
-        private Button iaBtn;
         private Button salirSalaBtn;
         private Label label2;
         private Label label3;

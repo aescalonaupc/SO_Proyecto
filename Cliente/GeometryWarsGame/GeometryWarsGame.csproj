@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Game\Utils\Task.cs~RF6b2a0a4.TMP" />
     <None Remove="Program.cs~RF8e4c2bf0.TMP" />
   </ItemGroup>
 

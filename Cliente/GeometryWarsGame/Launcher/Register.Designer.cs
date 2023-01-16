@@ -93,6 +93,7 @@
             this.userTb.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.userTb.Location = new System.Drawing.Point(301, 226);
             this.userTb.Margin = new System.Windows.Forms.Padding(2);
+            this.userTb.MaxLength = 256;
             this.userTb.Name = "userTb";
             this.userTb.PlaceholderText = "Username";
             this.userTb.Size = new System.Drawing.Size(176, 29);
@@ -103,7 +104,9 @@
             this.passTb.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.passTb.Location = new System.Drawing.Point(301, 296);
             this.passTb.Margin = new System.Windows.Forms.Padding(2);
+            this.passTb.MaxLength = 256;
             this.passTb.Name = "passTb";
+            this.passTb.PasswordChar = '*';
             this.passTb.PlaceholderText = "Password";
             this.passTb.Size = new System.Drawing.Size(176, 29);
             this.passTb.TabIndex = 2;
@@ -132,7 +135,9 @@
             this.pass2Tb.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.pass2Tb.Location = new System.Drawing.Point(301, 369);
             this.pass2Tb.Margin = new System.Windows.Forms.Padding(2);
+            this.pass2Tb.MaxLength = 256;
             this.pass2Tb.Name = "pass2Tb";
+            this.pass2Tb.PasswordChar = '*';
             this.pass2Tb.PlaceholderText = "Password";
             this.pass2Tb.Size = new System.Drawing.Size(176, 29);
             this.pass2Tb.TabIndex = 3;

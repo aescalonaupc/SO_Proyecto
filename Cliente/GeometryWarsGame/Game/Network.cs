@@ -66,7 +66,14 @@ namespace GeometryWarsGame.Game
                 return;
             }
 
-            _ = await server.SendAsync(data, SocketFlags.None);
+            Console.WriteLine("Before Send");
+            _ = System.Threading.Tasks.Task.Run(() =>
+            {
+                int n = server.Send(data, SocketFlags.None);
+                Console.WriteLine("Sent " + n + " bytes");
+            });
+            //_ = await server.SendAsync(data, SocketFlags.None);
+            //Console.WriteLine("After send");
         }
 
         private static void NetworkingLoop()
