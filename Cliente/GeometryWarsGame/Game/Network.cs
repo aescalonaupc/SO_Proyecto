@@ -334,7 +334,7 @@ namespace GeometryWarsGame.Game
         /// <returns></returns>
         public static void Send(string data)
         {
-            Shared.NetworkHandler.Send(data + "$");
+            Shared.NetworkHandler.Send(data);
         }
     }
 }
