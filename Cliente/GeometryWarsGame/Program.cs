@@ -18,7 +18,7 @@ namespace GeometryWarsGame
         private static int port = 50059;
 #endif
 
-        public const bool SkipOpenLauncher = true;
+        public const bool SkipOpenLauncher = false;
 
         /// <summary>
         ///  The main entry point for the application.
