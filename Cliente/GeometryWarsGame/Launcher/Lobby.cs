@@ -244,10 +244,10 @@ namespace GeometryWarsGame.Launcher
                     {
                         Shared.NetworkHandler.Send("5/" + partidaId + "/1");
                         soyLider = false;
-                        allBtn.Enabled = false;
 
                         Invoke(() =>
                         {
+                            allBtn.Enabled = false;
                             conectadosGrid.Columns[2].Visible = false;
                             helpLabel.Text = "Te has unido a la sala de " + usuarioInvita + ". Cuando esté listo, " + usuarioInvita + " empezará la partida eligiendo uno de los 3 modos de juego. Puedes abandonar la sala haciendo click en 'Abandonar Sala'. Si no, simplemente espera a que empiece la partida.";
 
