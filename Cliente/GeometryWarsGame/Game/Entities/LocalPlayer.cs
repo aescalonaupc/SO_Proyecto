@@ -159,7 +159,7 @@ namespace GeometryWarsGame.Game.Entities
 
                 if (Time.GetReferenceMillis() - lastSync > 10)
                 {
-                    Utils.Task.RunAndForget(Network.Send("100/5/" + Id + "/" + Position.X + "/" + Position.Y + "/" + Heading));
+                    Network.Send("100/5/" + Id + "/" + Position.X + "/" + Position.Y + "/" + Heading);
                     lastSync = Time.GetReferenceMillis();
                 }
 
@@ -176,10 +176,9 @@ namespace GeometryWarsGame.Game.Entities
                 return;
             }
 
-            g.DrawString("(debug) player position " + Position.ToString(), Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 55);
-            g.DrawString("(debug) player cam position " + CamPosition.ToString(), Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 75);
-            g.DrawString("(debug) player heading " + Heading, Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 100);
-
+            //g.DrawString("(debug) player position " + Position.ToString(), Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 55);
+            //g.DrawString("(debug) player cam position " + CamPosition.ToString(), Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 75);
+            //g.DrawString("(debug) player heading " + Heading, Utils.Ui.DebugFont, Utils.Ui.WhiteBrush, 5, 100);
             //g.DrawLine(new Pen(Color.Gray), CamPosition.X, CamPosition.Y, Program.GameWindow.MouseCoords.X, Program.GameWindow.MouseCoords.Y);
 
             base.Render(g);

@@ -112,7 +112,7 @@ namespace GeometryWarsGame.Game.Entities
                     // apply damage, notify new health and destroy bullet
                     e.Health -= Damage;
                     MarkForDestroy();
-                    Utils.Task.RunAndForget(Network.Send("100/7/" + e.Id + "/" + e.Health + "$100/8/" + Id));
+                    Network.Send("100/7/" + e.Id + "/" + e.Health + "$100/8/" + Id);
                 }
             }
         }

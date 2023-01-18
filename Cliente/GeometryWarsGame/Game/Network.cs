@@ -6,125 +6,21 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using GeometryWarsGame.Game.Entities;
 using GeometryWarsGame.Game.Utils;
+using System.Windows.Forms;
 
 namespace GeometryWarsGame.Game
 {
     public static class Network
     {
-        private static Socket? server;
-        private static Thread? networkThread;
-
-        private static bool running = true;
-
         /// <summary>
         /// Initialize networking thread
         /// </summary>
         public static void Initialize()
         {
-            networkThread = new Thread(NetworkingLoop);
-            networkThread.Priority = ThreadPriority.AboveNormal;
-            networkThread.Start();
+            Shared.NetworkHandler.OnNetworkMessage += OnNetworkMessage;
         }
 
-        /// <summary>
-        /// Set the socket instance with server
-        /// </summary>
-        /// <param name="s"></param>
-        public static void SetSocket(Socket s)
-        {
-            server = s;
-            server.ReceiveTimeout = 0;
-        }
-
-        /// <summary>
-        /// Stop networking thread
-        /// </summary>
-        public static void Stop()
-        {
-            running = false;
-        }
-
-        /// <summary>
-        /// Convert the given string in ASCII and send to the server
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static async System.Threading.Tasks.Task Send(string data)
-        {
-            await Send(Encoding.ASCII.GetBytes(data + "$"));
-        }
-
-        /// <summary>
-        /// Send the given data to the server
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static async System.Threading.Tasks.Task Send(byte[] data)
-        {
-            if (server == null)
-            {
-                return;
-            }
-
-            Console.WriteLine("Before Send");
-            _ = System.Threading.Tasks.Task.Run(() =>
-            {
-                int n = server.Send(data, SocketFlags.None);
-                Console.WriteLine("Sent " + n + " bytes");
-            });
-            //_ = await server.SendAsync(data, SocketFlags.None);
-            //Console.WriteLine("After send");
-        }
-
-        private static void NetworkingLoop()
-        {
-            if (server == null)
-            {
-                return;
-            }
-
-            Logs.PrintDebug("Started networking");
-
-            // Create buffer once!
-            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(8192);
-
-            try
-            {
-                while (running)
-                {                    
-                    int n;
-
-                    try
-                    {
-                        n = server.Receive(buffer);
-                    }
-                    catch (SocketException)
-                    {
-                        continue;
-                    }
-
-                    if (n == 0)
-                    {
-                        continue;
-                    }
-
-                    string[] messages = Encoding.ASCII.GetString(buffer, 0, n).Split('\0')[0].Split('$');
-
-                    foreach (string m in messages)
-                    {
-                        if (m.Length <= 0)
-                        {
-                            continue;
-                        }
-
-                        ProcessMessage(m);
-                    }
-                }
-            }
-            catch (Exception) { }
-        }
-
-        private static void ProcessMessage(string _message)
+        private static void OnNetworkMessage(string _message)
         {
             string[] message = _message.Split('/');
             int op = Convert.ToInt32(message[0]);
@@ -156,14 +52,14 @@ namespace GeometryWarsGame.Game
                                 Player p = new Player(item.Name, item.Position.X, item.Position.Y);
                                 p.Create();
 
-                                Utils.Task.RunAndForget(Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y));
+                                Send("100/1/" + p.Id + "/" + p.Name + "/" + p.Position.X + "/" + p.Position.Y);
                             }
 
-                            Utils.Task.RunAndForget(Send("100/1/" + Program.GameWindow.MyPlayer!.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y));
+                            Send("100/1/" + Program.GameWindow.MyPlayer!.Id + "/" + Program.GameWindow.MyPlayer.Name + "/" + Program.GameWindow.MyPlayer.Position.X + "/" + Program.GameWindow.MyPlayer.Position.Y);
 
                             new TimerManager.Timer(5000, () =>
                             {
-                                Utils.Task.RunAndForget(Send("100/3"));
+                                Send("100/3");
                             });
                         });
                         break;
@@ -319,7 +215,8 @@ namespace GeometryWarsGame.Game
                                 {
                                     LocalPlayer.StartSpecMode();
                                 });
-                            } else
+                            }
+                            else
                             {
                                 NotificationManager.Notify(p.Name + " ha muerto >:)", 4);
                             }
@@ -369,7 +266,7 @@ namespace GeometryWarsGame.Game
                             // After timeout, player respawns
                             _ = new TimerManager.Timer(3000, () =>
                             {
-                                Utils.Task.RunAndForget(Send("100/11/" + p.Id + "/" + x + "/" + y));
+                                Send("100/11/" + p.Id + "/" + x + "/" + y);
                             });
                         });
                         break;
@@ -420,6 +317,24 @@ namespace GeometryWarsGame.Game
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Stop networking thread
+        /// </summary>
+        public static void Stop()
+        {
+            Shared.NetworkHandler.OnNetworkMessage -= OnNetworkMessage;
+        }
+
+        /// <summary>
+        /// Convert the given string in ASCII and send to the server
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static void Send(string data)
+        {
+            Shared.NetworkHandler.Send(data + "$");
         }
     }
 }

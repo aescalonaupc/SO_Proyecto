@@ -13,12 +13,6 @@ namespace GeometryWarsGame.Launcher
 {
     public partial class Register : Form
     {
-        private Socket serverSocket;
-
-        public void SetSocket(Socket socket)
-        {
-            serverSocket = socket;
-        }
 
         public Register()
         {
@@ -27,11 +21,6 @@ namespace GeometryWarsGame.Launcher
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (serverSocket == null)
-            {
-                return;
-            }
-
             string user = userTb.Text.Trim();
             string pass = passTb.Text.Trim();
             string pass2 = pass2Tb.Text.Trim();
@@ -48,7 +37,12 @@ namespace GeometryWarsGame.Launcher
                 return;
             }
 
-            serverSocket.Send(Encoding.ASCII.GetBytes("2/" + user + "/" + pass));
+            Shared.NetworkHandler.Send("2/" + user + "/" + pass);
+        }
+
+        private void Register_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

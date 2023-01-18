@@ -75,7 +75,7 @@ namespace GeometryWarsGame.Game.Entities
         /// </summary>
         public void Shoot()
         {
-            Utils.Task.RunAndForget(Network.Send("100/6/" + Id + "/" + Heading + "/" + Position.X + "/" + Position.Y));
+            Network.Send("100/6/" + Id + "/" + Heading + "/" + Position.X + "/" + Position.Y);
         }
 
         public override Vector2D GetReferenceCoordinate()
@@ -104,13 +104,13 @@ namespace GeometryWarsGame.Game.Entities
                     // notify about the permanent death and lose
                     if (Lifes <= 0)
                     {
-                        Utils.Task.RunAndForget(Network.Send("100/9/" + Id));
+                        Network.Send("100/9/" + Id);
                         return;
                     }
 
                     // If the player has enough lifes,
                     // notify about the death and remaining lifes
-                    Utils.Task.RunAndForget(Network.Send("100/10/" + Id + "/" + Lifes));
+                    Network.Send("100/10/" + Id + "/" + Lifes);
 
                     // Note: on networking thread, as soon as we receive
                     // the ack of player death (packet 10), we will cause player respawn

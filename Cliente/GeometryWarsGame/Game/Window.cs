@@ -161,8 +161,7 @@ namespace GeometryWarsGame.Game
             Text = Title;
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.UserPaint, false);
 
             BackColor = Color.Black;
 
@@ -509,7 +508,7 @@ namespace GeometryWarsGame.Game
             if (Master)
             {
                 Logs.PrintDebug("Notify server game is starting");
-                Utils.Task.RunAndForget(Network.Send("100/0/" + (int)GameType));
+                Network.Send("100/0/" + (int)GameType);
             }
 
             SoundManager.PlayIngame();

@@ -68,7 +68,6 @@
             // 
             this.loginBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
             this.loginBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.loginBtn.Enabled = false;
             this.loginBtn.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke;
             this.loginBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.loginBtn.ForeColor = System.Drawing.Color.Transparent;
@@ -95,7 +94,6 @@
             // 
             this.registerBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
             this.registerBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.registerBtn.Enabled = false;
             this.registerBtn.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke;
             this.registerBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.registerBtn.ForeColor = System.Drawing.Color.Transparent;
