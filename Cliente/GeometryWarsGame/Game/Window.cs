@@ -206,7 +206,7 @@ namespace GeometryWarsGame.Game
             // We use this fraction of time to execute queued thread safe actions
             Application.Idle += (object? _, EventArgs _) =>
             {
-                while (0 == PeekMessage(out _, IntPtr.Zero, (uint)0, (uint)0, (uint)0))
+                while (0 == PeekMessage(out _, IntPtr.Zero, 0, 0, 0))
                 {
                     while (!UIThreadSafeActions.IsEmpty)
                     {
