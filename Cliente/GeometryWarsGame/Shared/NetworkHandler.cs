@@ -88,7 +88,8 @@ namespace GeometryWarsGame.Shared
                 return;
             }
 
-            Task.Run(() => { socket.Send(Encoding.ASCII.GetBytes(data + "$")); }).ConfigureAwait(false);
+            // Using try/catch since `.Send()` might arise SocketException (SendTimeout != 0)
+            Task.Run(() => { try { socket.Send(Encoding.ASCII.GetBytes(data + "$")); } catch (Exception) { } }).ConfigureAwait(false);
         }
 
         /// <summary>
