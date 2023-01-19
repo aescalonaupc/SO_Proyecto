@@ -208,7 +208,7 @@ namespace GeometryWarsGame.Launcher
 
                             for (int i = 0, row = 0; i < numJugadores; i++)
                             {
-                                if (jugadores[i] == myUsername)
+                                if (jugadores[i] == myUsername || jugadores[i].Length <= 0)
                                 {
                                     continue;
                                 }
@@ -415,7 +415,7 @@ namespace GeometryWarsGame.Launcher
                 text = text.Substring(0, 256);
             }
 
-            Shared.NetworkHandler.Send("6/");
+            Shared.NetworkHandler.Send("6/" + text);
             chatTb.Clear();
         }
 

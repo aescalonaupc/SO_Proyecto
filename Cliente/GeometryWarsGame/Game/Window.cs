@@ -77,10 +77,28 @@ namespace GeometryWarsGame.Game
         /// </summary>
         public GameType GameType = GameType.Sandbox;
 
+        private readonly WeakReference<LocalPlayer?> myPlayer = new WeakReference<LocalPlayer?>(null);
+
         /// <summary>
         /// Local player
         /// </summary>
-        public LocalPlayer? MyPlayer;
+        public LocalPlayer? MyPlayer
+        {
+            get
+            {
+                if (myPlayer.TryGetTarget(out LocalPlayer? t))
+                {
+                    return t;
+                }
+
+                return null;
+            }
+
+            set
+            {
+                myPlayer.SetTarget(value);
+            }
+        }
 
         /// <summary>
         /// Mouse coordinates with respect to the window (camera)
@@ -399,6 +417,15 @@ namespace GeometryWarsGame.Game
         }
 
         /// <summary>
+        /// Check if the game has ended or not
+        /// </summary>
+        /// <returns></returns>
+        public bool HasGameEnded()
+        {
+            return IsGameState(GameState.EndWon) || IsGameState(GameState.EndLost);
+        }
+
+        /// <summary>
         /// Check if PvP is allowed in the current gametype
         /// </summary>
         /// <returns></returns>
@@ -465,7 +492,11 @@ namespace GeometryWarsGame.Game
         /// </summary>
         public static void CloseGame(string reason = "")
         {
-            MessageBox.Show("El juego se ha cerrado. Motivo: " + reason);
+            if (reason.Length > 0)
+            {
+                MessageBox.Show("El juego se ha cerrado. Motivo: " + reason);
+            }
+            
             Logs.PrintDebug("Closing game");
             Environment.Exit(0);
         }
@@ -514,10 +545,10 @@ namespace GeometryWarsGame.Game
             SoundManager.PlayIngame();
 
             // It's ok, just wait few ms
-            while (!SoundManager.IsPlayerReady()) ;
+            //while (!SoundManager.IsPlayerReady()) ;
 
             // Show splash anim
-            BeginInvoke(() =>
+            Window.CallUIThread(() =>
             {
                 introPb.Dock = DockStyle.Fill;
                 introPb.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -627,7 +658,7 @@ namespace GeometryWarsGame.Game
                 a?.Invoke();
             }
 
-            if (IsGameRunning())
+            if (GameType == GameType.AvA || IsGameRunning())
             {
                 EntityManager.Update();
             }
@@ -647,6 +678,47 @@ namespace GeometryWarsGame.Game
             if (LocalPlayer.SpecatorMode)
             {
                 LocalPlayer.FocusSpectatedPlayer();
+            }
+
+            // Check game state if we are `Master`
+            if (Master)
+            {
+                // When only one player remains alive, we check who has lost and won the game
+                // We will notify the server, and it will forward the state to all players, including us
+                if (EntityManager.GetPlayerCount() <= 1 && !HasGameEnded())
+                {
+                    List<Entity> entities = EntityManager.GetAllSpawned();
+                    Player? winner = null;
+
+                    foreach (Entity e in entities)
+                    {
+                        if (e is not Player)
+                        {
+                            continue;
+                        }
+
+                        winner = e as Player;
+                        break;
+                    }
+
+                    // Wtf?
+                    if (winner == null)
+                    {
+                        Logs.PrintDebug("Winner is null, wtf?");
+                        return;
+                    }
+
+                    // Should not be done here, but we need to quit check condition
+                    if (MyPlayer == null || MyPlayer.Id != winner.Id)
+                    {
+                        SetGameState(GameState.EndLost, true);
+                    } else
+                    {
+                        SetGameState(GameState.EndWon, true);
+                    }
+
+                    Network.Send("100/200/" + winner.Name);
+                }
             }
         }
 
@@ -709,8 +781,11 @@ namespace GeometryWarsGame.Game
 
             // Swap buffers between `g` (which is allocated each time we render, is this even good?) and window buffer
             // Then, dispose current buffered graphics
-            bGraphics!.Render();
-            bGraphics.Dispose();
+            if (bGraphics != null)
+            {
+                bGraphics.Render();
+                bGraphics.Dispose();
+            }
 
             // Perform a GC collection, im not even sure if this is good but
             // memory usage is lower, updates per second are constant and fps are ok
@@ -747,6 +822,9 @@ namespace GeometryWarsGame.Game
         InGame = 1 << 1,
         PauseMenu = 1 << 2,
         Loading = 1 << 3,
+
+        EndWon = 1 << 4,
+        EndLost = 1 << 5,
     }
 
     public enum GameType : uint

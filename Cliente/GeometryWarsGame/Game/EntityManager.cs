@@ -36,6 +36,22 @@ namespace GeometryWarsGame.Game
         }
 
         /// <summary>
+        /// Get total count of players
+        /// </summary>
+        /// <returns></returns>
+        public static int GetPlayerCount()
+        {
+            int count = 0;
+
+            foreach (Entity e in entities.Values)
+            {
+                if (e is Player) count++;
+            }
+
+            return count;
+        }
+
+        /// <summary>
         /// Add given entity to the entity pool
         /// </summary>
         /// <param name="entity"></param>
@@ -71,6 +87,32 @@ namespace GeometryWarsGame.Game
         public static Entity? GetById(int id)
         {
             return entities!.GetValueOrDefault(id, null);
+        }
+
+        /// <summary>
+        /// Get the player by their name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static Player? GetPlayerByName(string name)
+        {
+            Player? result = null;
+
+            foreach (Entity e in entities.Values)
+            {
+                if (e is not Player)
+                {
+                    continue;
+                }
+
+                if ((e as Player)!.Name == name)
+                {
+                    result = e as Player;
+                    break;
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

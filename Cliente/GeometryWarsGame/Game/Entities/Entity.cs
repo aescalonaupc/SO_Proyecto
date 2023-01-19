@@ -106,6 +106,11 @@ namespace GeometryWarsGame.Game.Entities
         {
             EntityManager.RemoveEntity(this);
             State = EntityState.Destroyed;
+
+            if (Program.GameWindow.MyPlayer != null && Id == Program.GameWindow.MyPlayer.Id)
+            {
+                Program.GameWindow.MyPlayer = null;
+            }
         }
 
         /// <summary>

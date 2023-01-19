@@ -309,11 +309,46 @@ namespace GeometryWarsGame.Game
                         Window.CloseGame("El anfitrion de la partida se ha desconectado :(");
                         break;
 
-                    // Un jugador se ha desconectado y debemos tomar accion
-                    // Teoricamente solo recibimos este mensaje si somos `Master`
+                    // Un jugador se ha desconectado
                     // Formato: 100/101/<usuario>
                     case 101:
+                        string usuario = message[2];
+                        NotificationManager.Notify(usuario + " ha salido del juego", 3);
 
+                        Window.CallThreaded(() =>
+                        {
+                            Player? p = EntityManager.GetPlayerByName(usuario);
+
+                            if (p == null)
+                            {
+                                return;
+                            }
+
+                            p.MarkForDestroy();
+                        });
+                        break;
+
+                    // Fin de la partida, ya hay ganador y perdedores
+                    // Formato: 100/200/<ganador>
+                    case 200:
+                        usuario = message[2];
+                        NotificationManager.Notify(usuario + " ha ganado la partida", 7);
+
+                        Window.CallThreaded(() =>
+                        {
+                            if (Program.GameWindow.Master)
+                            {
+                                return;
+                            }
+
+                            if (usuario == Program.GameWindow.MyUsername)
+                            {
+                                Program.GameWindow.SetGameState(GameState.EndWon, true);
+                            } else
+                            {
+                                Program.GameWindow.SetGameState(GameState.EndLost, true);
+                            }
+                        });
                         break;
                 }
             }

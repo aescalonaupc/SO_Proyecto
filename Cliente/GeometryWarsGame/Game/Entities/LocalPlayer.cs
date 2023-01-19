@@ -39,6 +39,11 @@ namespace GeometryWarsGame.Game.Entities
 
         private void OnKeyDown(KeyEventArgs e)
         {
+            if (!Program.GameWindow.IsGameRunning())
+            {
+                return;
+            }
+
             switch (e.KeyCode)
             {
                 case Keys.W:
@@ -61,6 +66,11 @@ namespace GeometryWarsGame.Game.Entities
 
         private void OnKeyUp(KeyEventArgs e)
         {
+            if (!Program.GameWindow.IsGameRunning())
+            {
+                return;
+            }
+
             switch (e.KeyCode)
             {
                 case Keys.W:

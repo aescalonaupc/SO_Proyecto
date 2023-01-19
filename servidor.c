@@ -108,8 +108,13 @@ void* AtenderCliente(void* socket)
 	while (acabado == 0)
 	{
 		ret = read(sock_conn, peticionEntrante, sizeof(peticionEntrante));
-
+	
 		printf("ret %d from %s (%d)\n", ret, usuario, sock_conn);
+		
+		if (ret == -1)
+		{
+			continue;
+		}
 		
 		if (ret == 0)
 		{
@@ -624,40 +629,44 @@ void* AtenderCliente(void* socket)
 				int slot;
 				
 				p = strtok(NULL, "/");
-				strcpy(mensaje, p);
-				for (p = strtok(NULL, "/"); p != NULL; p = strtok(NULL, "/"))
-				{
-					strcat(mensaje, "/");
-					strcat(mensaje, p);
-				}
 				
-				sprintf(respuesta, "8/%s/%s", usuario, mensaje);
-				slot = ObtenerPartidaJugador(&tablaPartidas, sock_conn);
-				
-				// Chat global a todos los que no estan en sala
-				if (slot == -1)
+				if (p != NULL)
 				{
-					int buffer[MAX_CONECTADOS];
-					int n = DameSocketsConectados(&listaConectados, buffer);
-					
-					for (int i = 0; i < n; i++)
+					strcpy(mensaje, p);
+					for (p = strtok(NULL, "/"); p != NULL; p = strtok(NULL, "/"))
 					{
-						if (-1 != ObtenerPartidaJugador(&tablaPartidas, buffer[i]))
-						{
-							continue;
-						}
-						
-						_write(buffer[i], respuesta, strlen(respuesta));
+						strcat(mensaje, "/");
+						strcat(mensaje, p);
 					}
-				} else
-				// Chat privado a los miembros de la partida
-				{
-					int buffer[MAX_JUGADORES_PARTIDA];
-					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
-					for (int i = 0; i < n; i++)
+					sprintf(respuesta, "8/%s/%s", usuario, mensaje);
+					slot = ObtenerPartidaJugador(&tablaPartidas, sock_conn);
+					
+					// Chat global a todos los que no estan en sala
+					if (slot == -1)
 					{
-						_write(buffer[i], respuesta, strlen(respuesta));
+						int buffer[MAX_CONECTADOS];
+						int n = DameSocketsConectados(&listaConectados, buffer);
+						
+						for (int i = 0; i < n; i++)
+						{
+							if (-1 != ObtenerPartidaJugador(&tablaPartidas, buffer[i]))
+							{
+								continue;
+							}
+							
+							_write(buffer[i], respuesta, strlen(respuesta));
+						}
+					} else
+						// Chat privado a los miembros de la partida
+					{
+						int buffer[MAX_JUGADORES_PARTIDA];
+						int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+						
+						for (int i = 0; i < n; i++)
+						{
+							_write(buffer[i], respuesta, strlen(respuesta));
+						}
 					}
 				}
 				
@@ -914,6 +923,27 @@ void* AtenderCliente(void* socket)
 					for (int i = 0; i < n; i++)
 					{
 						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
+					}
+				}
+				
+				/*
+				Fin de la partida
+				*/
+				else if (gop == 200)
+				{
+					char ganador[STR_SIZE];
+					
+					p = strtok(NULL, "");
+					strcpy(ganador, p);
+					
+					sprintf(respuesta, "100/200/%s", ganador);
+					
+					int buffer[MAX_JUGADORES_PARTIDA];
+					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					
+					for (int i = 0; i < n; i++)
+					{
+						_write(buffer[i], respuesta, strlen(respuesta));
 					}
 				}
 			}

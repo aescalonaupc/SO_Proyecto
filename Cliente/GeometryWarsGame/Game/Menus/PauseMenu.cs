@@ -11,6 +11,7 @@ namespace GeometryWarsGame.Game.Menus
         private static Ui.Label? pauseLabel = null;
         private static Ui.Button? playButton = null;
         private static Ui.Button? controlMusic = null;
+        private static Ui.Button? quitGame = null;
 
         private static bool visible = false;
 
@@ -33,6 +34,9 @@ namespace GeometryWarsGame.Game.Menus
             controlMusic = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 220), SoundManager.IsPlaying() ? "Stop music" : "Play music");
             controlMusic.CenterOnX();
 
+            quitGame = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 290), "Quit game");
+            quitGame.CenterOnX();
+
             playButton.Callback = () =>
             {
                 Hide();
@@ -53,9 +57,15 @@ namespace GeometryWarsGame.Game.Menus
                 }
             };
 
+            quitGame.Callback = () =>
+            {
+                Window.CloseGame();
+            };
+
             UiManager.AddComponent(pauseLabel);
             UiManager.AddComponent(playButton);
             UiManager.AddComponent(controlMusic);
+            UiManager.AddComponent(quitGame);
 
             visible = true;
         }
@@ -73,6 +83,7 @@ namespace GeometryWarsGame.Game.Menus
             UiManager.RemoveComponent(pauseLabel!);
             UiManager.RemoveComponent(playButton!);
             UiManager.RemoveComponent(controlMusic!);
+            UiManager.RemoveComponent(quitGame!);
 
             visible = false;
         }
