@@ -22,6 +22,8 @@ namespace GeometryWarsGame.Game.Utils
 
         public static readonly Pen RedPen = new Pen(Color.Red);
 
+        public static readonly Pen BlackPen = new Pen(Color.Black);
+
         public static readonly Pen GreenPen = new Pen(Color.FromArgb(255, 66, 255, 110));
         
         public static readonly Brush RedBrush = RedPen.Brush;
@@ -29,6 +31,8 @@ namespace GeometryWarsGame.Game.Utils
         public static readonly Brush GreenBrush = GreenPen.Brush;
 
         public static readonly Brush WhiteBrush = WhitePen.Brush;
+
+        public static readonly Brush BlackBrush = BlackPen.Brush;
 
         public static readonly Color PlayerColor = Color.FromArgb(23, 117, 212);
 

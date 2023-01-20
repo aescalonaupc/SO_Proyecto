@@ -278,6 +278,8 @@ namespace GeometryWarsGame.Game
 
                 StartGameplay();
 
+                Menus.EndMenu.ShowWin();
+
                 NotificationManager.Notify("Test notification", 5);
                 NotificationManager.Notify("Works >:)", 5);
 
@@ -778,6 +780,11 @@ namespace GeometryWarsGame.Game
             // Render user interface and alerts
             UiManager.Render(g);
             NotificationManager.Render(g);
+
+            if (HasGameEnded())
+            {
+                Menus.EndMenu.Render(g);
+            }
 
             // Swap buffers between `g` (which is allocated each time we render, is this even good?) and window buffer
             // Then, dispose current buffered graphics
