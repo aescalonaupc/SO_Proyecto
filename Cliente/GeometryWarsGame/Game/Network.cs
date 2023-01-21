@@ -208,7 +208,7 @@ namespace GeometryWarsGame.Game
                                 return;
                             }
 
-                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer?.Id)
                             {
                                 NotificationManager.Notify("Te has quedado sin vidas :(", 4);
                                 _ = new TimerManager.Timer(4000, () =>
@@ -242,7 +242,7 @@ namespace GeometryWarsGame.Game
                             }
 
                             // if its me, show respawn timer
-                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer?.Id)
                             {
                                 NotificationManager.Notify("3", 1);
                                 NotificationManager.Notify("2", 1);
@@ -294,7 +294,7 @@ namespace GeometryWarsGame.Game
                             p.MarkedAsDead = false;
                             p.Health = 100;
 
-                            if (p.Id == Program.GameWindow.MyPlayer!.Id)
+                            if (p.Id == Program.GameWindow.MyPlayer?.Id)
                             {
                                 NotificationManager.Notify("Vidas restantes " + p.Lifes, 3);
                             }
@@ -336,11 +336,6 @@ namespace GeometryWarsGame.Game
 
                         Window.CallThreaded(() =>
                         {
-                            if (Program.GameWindow.Master)
-                            {
-                                return;
-                            }
-
                             if (usuario == Program.GameWindow.MyUsername)
                             {
                                 Program.GameWindow.SetGameState(GameState.EndWon, true);
