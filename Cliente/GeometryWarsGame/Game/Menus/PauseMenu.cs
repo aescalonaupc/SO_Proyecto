@@ -106,10 +106,14 @@ namespace GeometryWarsGame.Game.Menus
             UiManager.RemoveComponent(pauseLabel!);
             UiManager.RemoveComponent(playButton!);
 
-            if (!SoundManager.IsPlayerUnloaded())
+            if (controlMusic != null)
             {
-                UiManager.RemoveComponent(controlMusic!);
-                UiManager.RemoveComponent(unloadMusic!);
+                UiManager.RemoveComponent(controlMusic);
+            }
+
+            if (unloadMusic != null)
+            {
+                UiManager.RemoveComponent(unloadMusic);
             }
             
             UiManager.RemoveComponent(quitGame!);
