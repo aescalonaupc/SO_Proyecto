@@ -9,7 +9,7 @@ namespace GeometryWarsGame.Game
 {
     public class SoundManager
     {
-        private static System.Media.SoundPlayer player = new System.Media.SoundPlayer();
+        private static System.Media.SoundPlayer? player = new System.Media.SoundPlayer();
 
         private static uint Volume = 0;
 
@@ -47,6 +47,11 @@ namespace GeometryWarsGame.Game
                 return;
             }
 
+            if (player == null)
+            {
+                return;
+            }
+
             SoundTrack track = SoundTracks[trackIndex];
             player.Stream = track.Audio;
 
@@ -69,6 +74,11 @@ namespace GeometryWarsGame.Game
                 return;
             }
 
+            if (player == null)
+            {
+                return;
+            }
+
             SoundTrack track = SoundTracks[trackIndex];
             player.Stream = track.Audio;
 
@@ -84,6 +94,11 @@ namespace GeometryWarsGame.Game
         private static void PlayTrackLoop(int trackIndex)
         {
             if (trackIndex >= SoundTracks.Count)
+            {
+                return;
+            }
+
+            if (player == null)
             {
                 return;
             }
@@ -114,18 +129,40 @@ namespace GeometryWarsGame.Game
 
         public static void StopQueue()
         {
+            if (player == null)
+            {
+                return;
+            }
+
             player.Stop();
             CurrentTrack = null;
         }
 
+        public static void Unload()
+        {
+            if (player == null)
+            {
+                return;
+            }
+
+            StopQueue();
+            player.Dispose();
+            player = null;
+        }
+
         public static bool IsPlaying()
         {
-            return CurrentTrack != null && Volume > 0;
+            return player != null && CurrentTrack != null && Volume > 0;
         }
 
         public static bool IsPlayerReady()
         {
-            return player.IsLoadCompleted && player.Stream.Position > 0;
+            return player != null && player.IsLoadCompleted && player.Stream.Position > 0;
+        }
+
+        public static bool IsPlayerUnloaded()
+        {
+            return player == null;
         }
 
     }

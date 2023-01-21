@@ -225,9 +225,13 @@ void* AtenderCliente(void* socket)
 					// si la partida se acaba, notificar al resto visualmente, etc
 					if (empezada == 1)
 					{
-						// `gop` 101 = jugador abandona
+						// `gop` 101 = jugador abandona notificar lider
 						sprintf(respuesta, "100/101/%s", usuario);
-						_write(lider, respuesta, strlen(respuesta));
+						
+						for (int i = 0; i < n; i++)
+						{
+							_write(buffer[i], respuesta, strlen(respuesta));	
+						}
 					}
 					
 					// Si no esta empezada, deberemos actualizar estados,

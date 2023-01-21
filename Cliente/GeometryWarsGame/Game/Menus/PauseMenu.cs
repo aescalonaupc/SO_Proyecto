@@ -11,6 +11,7 @@ namespace GeometryWarsGame.Game.Menus
         private static Ui.Label? pauseLabel = null;
         private static Ui.Button? playButton = null;
         private static Ui.Button? controlMusic = null;
+        private static Ui.Button? unloadMusic = null;
         private static Ui.Button? quitGame = null;
 
         private static bool visible = false;
@@ -31,30 +32,41 @@ namespace GeometryWarsGame.Game.Menus
             playButton = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 150), "Return to game");
             playButton.CenterOnX();
 
-            controlMusic = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 220), SoundManager.IsPlaying() ? "Stop music" : "Play music");
-            controlMusic.CenterOnX();
+            if (!SoundManager.IsPlayerUnloaded())
+            {
+                controlMusic = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 220), SoundManager.IsPlaying() ? "Stop music" : "Play music");
+                controlMusic.CenterOnX();
 
-            quitGame = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 290), "Quit game");
+                unloadMusic = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 290), "Unload music");
+                unloadMusic.CenterOnX();
+
+                controlMusic.Callback = () =>
+                {
+                    if (SoundManager.IsPlaying())
+                    {
+                        //SoundManager.StopQueue();
+                        SoundManager.SetVolume(0);
+                    }
+                    else
+                    {
+                        //SoundManager.PlayIngame();
+                        SoundManager.SetVolume(1);
+                    }
+                };
+
+                unloadMusic.Callback = () =>
+                {
+                    SoundManager.Unload();
+                };
+            }
+
+            quitGame = new Ui.Button(200, 50, new Vector2D(Window.InitialWidth / 2 - 100, 360), "Quit game");
             quitGame.CenterOnX();
 
             playButton.Callback = () =>
             {
                 Hide();
                 Program.GameWindow.SetGameState(GameState.PauseMenu, false);
-            };
-
-            controlMusic.Callback = () =>
-            {
-                if (SoundManager.IsPlaying())
-                {
-                    //SoundManager.StopQueue();
-                    SoundManager.SetVolume(0);
-                }
-                else
-                {
-                    //SoundManager.PlayIngame();
-                    SoundManager.SetVolume(1);
-                }
             };
 
             quitGame.Callback = () =>
@@ -64,7 +76,13 @@ namespace GeometryWarsGame.Game.Menus
 
             UiManager.AddComponent(pauseLabel);
             UiManager.AddComponent(playButton);
-            UiManager.AddComponent(controlMusic);
+
+            if (!SoundManager.IsPlayerUnloaded())
+            {
+                UiManager.AddComponent(controlMusic!);
+                UiManager.AddComponent(unloadMusic!);
+            }
+
             UiManager.AddComponent(quitGame);
 
             visible = true;
@@ -82,7 +100,13 @@ namespace GeometryWarsGame.Game.Menus
 
             UiManager.RemoveComponent(pauseLabel!);
             UiManager.RemoveComponent(playButton!);
-            UiManager.RemoveComponent(controlMusic!);
+
+            if (!SoundManager.IsPlayerUnloaded())
+            {
+                UiManager.RemoveComponent(controlMusic!);
+                UiManager.RemoveComponent(unloadMusic!);
+            }
+            
             UiManager.RemoveComponent(quitGame!);
 
             visible = false;
