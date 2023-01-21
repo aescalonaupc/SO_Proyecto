@@ -82,7 +82,7 @@ void* AtenderCliente(void* socket)
 	char respuesta[NETWORK_BUFFER_SIZE];
 	
 	// Solo he llegado a ver 3, pero por si acaso...
-	const int MAX_MSG_PET = 10;
+	const int MAX_MSG_PET = 20;
 	char mensajes[MAX_MSG_PET][BUFFER_SIZE];
 	
 	strcpy(peticionEntrante, "");
