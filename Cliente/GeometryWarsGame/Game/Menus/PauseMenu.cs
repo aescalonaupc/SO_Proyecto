@@ -57,6 +57,7 @@ namespace GeometryWarsGame.Game.Menus
                 unloadMusic.Callback = () =>
                 {
                     SoundManager.Unload();
+                    Hide();
                 };
             }
 
@@ -77,10 +78,14 @@ namespace GeometryWarsGame.Game.Menus
             UiManager.AddComponent(pauseLabel);
             UiManager.AddComponent(playButton);
 
-            if (!SoundManager.IsPlayerUnloaded())
+            if (controlMusic != null)
             {
-                UiManager.AddComponent(controlMusic!);
-                UiManager.AddComponent(unloadMusic!);
+                UiManager.AddComponent(controlMusic);
+            }
+
+            if (unloadMusic != null)
+            {
+                UiManager.AddComponent(unloadMusic);
             }
 
             UiManager.AddComponent(quitGame);
