@@ -936,14 +936,14 @@ void* AtenderCliente(void* socket)
 					p = strtok(NULL, "");
 					strcpy(ganador, p);
 					
-					sprintf(respuesta, "100/200/%s", ganador);
+					// guardar bd...
 					
 					int buffer[MAX_JUGADORES_PARTIDA];
 					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
 					
 					for (int i = 0; i < n; i++)
 					{
-						_write(buffer[i], respuesta, strlen(respuesta));
+						_write(buffer[i], peticionOriginal, strlen(peticionOriginal));
 					}
 				}
 			}

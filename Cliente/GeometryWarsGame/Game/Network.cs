@@ -328,7 +328,7 @@ namespace GeometryWarsGame.Game
                         });
                         break;
 
-                    // Fin de la partida, ya hay ganador y perdedores
+                    // Fin de la partida, ya hay ganador
                     // Formato: 100/200/<ganador>
                     case 200:
                         usuario = message[2];
@@ -344,9 +344,11 @@ namespace GeometryWarsGame.Game
                             if (usuario == Program.GameWindow.MyUsername)
                             {
                                 Program.GameWindow.SetGameState(GameState.EndWon, true);
+                                Menus.EndMenu.ShowWin();
                             } else
                             {
                                 Program.GameWindow.SetGameState(GameState.EndLost, true);
+                                Menus.EndMenu.ShowLose();
                             }
                         });
                         break;
