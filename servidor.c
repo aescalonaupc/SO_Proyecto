@@ -74,11 +74,20 @@ size_t _write(int fd, const void* buf, size_t nb)
 void* AtenderCliente(void* socket)
 {
 	int sock_conn = *((int*) socket);
-	
+
+	/* Peticion entrante sin procesar, pueden ser varias juntas */
 	char peticionEntrante[NETWORK_BUFFER_SIZE];
+	
+	/* Peticion individual que estamos procesando */
 	char peticion[BUFFER_SIZE];
+	
+	/* Usado para separar varias peticiones de peticionEntrante */
 	char* peticionPtr;
+	
+	/* Peticion original una vez la empezamos a procesar */
 	char peticionOriginal[BUFFER_SIZE];
+	
+	/* Respuesta a enviar al cliente */
 	char respuesta[NETWORK_BUFFER_SIZE];
 	
 	// Solo he llegado a ver 3, pero por si acaso...
@@ -91,8 +100,13 @@ void* AtenderCliente(void* socket)
 	strcpy(respuesta, "");
 	
 	int ret;
+	
+	/* Usuario conectado */
 	char usuario[STR_SIZE];
 	strcpy(usuario, "");
+	
+	/* Usuario Id para la BD */
+	int usuarioId = -1;
 	
 	int acabado = 0;
 	
@@ -401,6 +415,9 @@ void* AtenderCliente(void* socket)
 						sprintf(respuesta, "1/OK/%s/%d", usuario, resultado);
 						printf("%s\n", respuesta);
 						
+						/* Guardamos el usuario Id */
+						usuarioId = resultado;
+						
 						int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
 						if (solucion == 0)
 						{
@@ -436,7 +453,7 @@ void* AtenderCliente(void* socket)
 				if (existeUsuario == 0)
 				{
 					printf("Registro: usuario %s, contrasena %s\n", usuario, password);
-					int resultado = Registrarse(usuario, password, 0);
+					int resultado = Registrarse(usuario, password);
 					
 					if (resultado == -1)
 					{
@@ -747,6 +764,112 @@ void* AtenderCliente(void* socket)
 						};
 					}
 				}
+			}
+			else if (codigo == 9)
+			{
+				if (1 == EliminarUsuario(usuarioId))
+				{
+					/* Desconexion como si el cliente se fuera */
+					
+					EliminaConectado(&listaConectados, usuario);
+					
+					int slot = ObtenerPartidaJugador(&tablaPartidas, sock_conn);
+					if (slot != -1)
+					{
+						int lider = ObtenerLiderPartida(&tablaPartidas, slot);
+						
+						int buffer[MAX_JUGADORES_PARTIDA];
+						int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+						
+						if (lider == sock_conn)
+						{
+							EliminaPartida(&tablaPartidas, slot);
+							
+							// Establecemos su estado al default "disponible"
+							for (int i = 0; i < n; i++)
+							{
+								if (buffer[i] == sock_conn)
+								{
+									continue;
+								}
+								
+								EstablecerEstadoConectado(&listaConectados, buffer[i], 0);
+							}
+							
+							// Indicamos la sala vacia
+							sprintf(respuesta, "44/0");
+							for (int i = 0; i < n; i++)
+							{							
+								if (buffer[i] == sock_conn)
+								{
+									continue;
+								}
+								
+								_write(buffer[i], respuesta, strlen(respuesta));
+							}
+						}
+						else
+						{
+							// Hay mas de 2 jugadores, por tanto podemos simplemente
+							// eliminarle de la sala/partida y ya
+							if (n > 2)
+							{
+								// Lo eliminamos de la partida
+								EliminaJugadorEnPartida(&tablaPartidas, slot, sock_conn);
+								
+								// Notificamos a la gente de la partida que se ha salido
+								char jugadores[BUFFER_SIZE];
+								strcpy(jugadores, "");
+								
+								ObtenerNombresJugadoresPartida(&listaConectados, &tablaPartidas, slot, jugadores);
+								sprintf(respuesta, "44/%s", jugadores);
+								
+								for (int i = 0; i < n; i++)
+								{
+									if (buffer[i] == sock_conn)
+									{
+										continue;
+									}
+									
+									_write(buffer[i], respuesta, strlen(respuesta));
+								}
+							}
+							
+							// Hay 2 (o menos?) jugadores en la partida
+							else
+							{
+								EliminaPartida(&tablaPartidas, slot);
+								
+								// Establecemos su estado al default "disponible"
+								for (int i = 0; i < n; i++)
+								{
+									if (buffer[i] == sock_conn)
+									{
+										continue;
+									}
+									
+									EstablecerEstadoConectado(&listaConectados, buffer[i], 0);
+								}
+								
+								// Indicamos la sala vacia
+								sprintf(respuesta, "44/0");
+								for (int i = 0; i < n; i++)
+								{							
+									if (buffer[i] == sock_conn)
+									{
+										continue;
+									}
+									
+									_write(buffer[i], respuesta, strlen(respuesta));
+								}
+							}
+						}
+					}
+					
+					acabado = 1;
+					continue;
+				}
+				
 			}
 			else if (codigo == 100)
 			{
@@ -1105,7 +1228,7 @@ int ComprobarSiYaEstaRegistrado(char usuario[STR_SIZE])
 	Intenta registrar a un usuario en la base de datos,
 	Devuelve -1 en caso de error, 1 en caso de exito
 */
-int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
+int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE])
 {
 	MYSQL_RES* resultado;
 	MYSQL_ROW row;
@@ -1114,7 +1237,6 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
 	char consulta[STR_SIZE];
 	int siguiente_id;
 	char siguiente_id_str[3];
-	char edad_str[3];
 	
 	strcpy(consulta, "select max(id) from jugador;");
 	
@@ -1137,7 +1259,6 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
 	}
 	
 	sprintf(siguiente_id_str, "%d", siguiente_id);
-	sprintf(edad_str, "%d", edad);
 	
 	strcpy(consulta, "INSERT INTO jugador VALUES (");
 	strcat(consulta, siguiente_id_str);
@@ -1145,14 +1266,40 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad)
 	strcat(consulta, usuario);
 	strcat(consulta,"','");
 	strcat(consulta, password);
-	strcat(consulta,"',");
-	strcat(consulta, edad_str);
-	strcat(consulta, ");");
+	strcat(consulta,"');");
 	
 	err = mysql_query(mysqlConn, consulta);
 	if (err != 0)
 	{
 		printf ("Error al consultar la base de datos %u %s\n",mysql_errno(mysqlConn), mysql_error(mysqlConn));
+		return -1;
+	}
+	
+	return 1;
+}
+
+/*
+	Elimina un usuario (id) de la base de datos, devuelve 1 si fue un exito,
+	-1 si hubo un error
+*/
+int EliminarUsuario(int usuarioId)
+{
+	if (usuarioId < 0)
+	{
+		return -1;
+	}
+	
+	char consulta[STR_SIZE];
+	int err;
+	
+	/* Eliminamos el usuario y ya, la tabla de partidas_jugador tiene una
+	   relacion "ON DELETE CASCADE" con jugador_id y se eliminaran automaticamente
+	*/
+	sprintf(consulta, "delete from jugador where id = %d;", usuarioId);
+	err = mysql_query(mysqlConn, consulta);
+	
+	if (err != 0)
+	{
 		return -1;
 	}
 	

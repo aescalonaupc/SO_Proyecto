@@ -37,13 +37,10 @@
             this.labelSalaGrid = new System.Windows.Forms.Label();
             this.allBtn = new System.Windows.Forms.Button();
             this.salaGrid = new System.Windows.Forms.DataGridView();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.helpLabel = new System.Windows.Forms.Label();
+            this.helpLabel = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.musicControlBtn = new System.Windows.Forms.Button();
             this.nowPlayingLabel = new System.Windows.Forms.Label();
@@ -51,6 +48,11 @@
             this.chatSendBtn = new System.Windows.Forms.Button();
             this.chatTb = new System.Windows.Forms.TextBox();
             this.chatBox = new System.Windows.Forms.ListBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.minutosLabel = new System.Windows.Forms.Label();
+            this.ganadasLabel = new System.Windows.Forms.Label();
+            this.jugadasLabel = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.conectadosGrid)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.salaGrid)).BeginInit();
@@ -58,13 +60,14 @@
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // welcomeLabel
             // 
             this.welcomeLabel.AutoSize = true;
             this.welcomeLabel.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.welcomeLabel.Location = new System.Drawing.Point(34, 62);
+            this.welcomeLabel.Location = new System.Drawing.Point(34, 18);
             this.welcomeLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.welcomeLabel.Name = "welcomeLabel";
             this.welcomeLabel.Size = new System.Drawing.Size(221, 30);
@@ -174,42 +177,9 @@
             this.salaGrid.Size = new System.Drawing.Size(409, 196);
             this.salaGrid.TabIndex = 6;
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(326, 66);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(206, 25);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "Has ganado {} partidas.";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(641, 66);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(235, 25);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "Has matado a {} enemigos.";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(994, 66);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(179, 25);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Has jugado {} veces.";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Controls.Add(this.textBox1);
             this.groupBox2.ForeColor = System.Drawing.Color.White;
             this.groupBox2.Location = new System.Drawing.Point(473, 113);
             this.groupBox2.Name = "groupBox2";
@@ -218,14 +188,19 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Modos de juego";
             // 
-            // label5
+            // textBox1
             // 
-            this.label5.ForeColor = System.Drawing.Color.Silver;
-            this.label5.Location = new System.Drawing.Point(6, 25);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(422, 225);
-            this.label5.TabIndex = 0;
-            this.label5.Text = resources.GetString("label5.Text");
+            this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1.Enabled = false;
+            this.textBox1.ForeColor = System.Drawing.Color.White;
+            this.textBox1.Location = new System.Drawing.Point(6, 28);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox1.Size = new System.Drawing.Size(422, 219);
+            this.textBox1.TabIndex = 15;
+            this.textBox1.Text = resources.GetString("textBox1.Text");
             // 
             // groupBox3
             // 
@@ -240,11 +215,16 @@
             // 
             // helpLabel
             // 
-            this.helpLabel.ForeColor = System.Drawing.Color.Silver;
-            this.helpLabel.Location = new System.Drawing.Point(6, 25);
+            this.helpLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
+            this.helpLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.helpLabel.Enabled = false;
+            this.helpLabel.ForeColor = System.Drawing.Color.White;
+            this.helpLabel.Location = new System.Drawing.Point(6, 28);
+            this.helpLabel.Multiline = true;
             this.helpLabel.Name = "helpLabel";
-            this.helpLabel.Size = new System.Drawing.Size(422, 250);
-            this.helpLabel.TabIndex = 0;
+            this.helpLabel.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.helpLabel.Size = new System.Drawing.Size(422, 244);
+            this.helpLabel.TabIndex = 15;
             this.helpLabel.Text = "Ahora mismo no estás en ninguna sala, espera que alguno de los jugadores te invit" +
     "e a la suya o invita tú a alguien.";
             // 
@@ -342,19 +322,77 @@
             this.chatBox.Size = new System.Drawing.Size(297, 336);
             this.chatBox.TabIndex = 0;
             // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.minutosLabel);
+            this.groupBox6.Controls.Add(this.ganadasLabel);
+            this.groupBox6.Controls.Add(this.jugadasLabel);
+            this.groupBox6.ForeColor = System.Drawing.Color.White;
+            this.groupBox6.Location = new System.Drawing.Point(473, 36);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(759, 65);
+            this.groupBox6.TabIndex = 15;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Mis Estadísticas";
+            // 
+            // minutosLabel
+            // 
+            this.minutosLabel.AutoSize = true;
+            this.minutosLabel.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.minutosLabel.Location = new System.Drawing.Point(516, 25);
+            this.minutosLabel.Name = "minutosLabel";
+            this.minutosLabel.Size = new System.Drawing.Size(233, 25);
+            this.minutosLabel.TabIndex = 17;
+            this.minutosLabel.Text = "Has jugado XXXX minutos.";
+            // 
+            // ganadasLabel
+            // 
+            this.ganadasLabel.AutoSize = true;
+            this.ganadasLabel.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ganadasLabel.Location = new System.Drawing.Point(270, 25);
+            this.ganadasLabel.Name = "ganadasLabel";
+            this.ganadasLabel.Size = new System.Drawing.Size(216, 25);
+            this.ganadasLabel.TabIndex = 1;
+            this.ganadasLabel.Text = "Has ganado XX partidas.";
+            // 
+            // jugadasLabel
+            // 
+            this.jugadasLabel.AutoSize = true;
+            this.jugadasLabel.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.jugadasLabel.Location = new System.Drawing.Point(17, 25);
+            this.jugadasLabel.Name = "jugadasLabel";
+            this.jugadasLabel.Size = new System.Drawing.Size(211, 25);
+            this.jugadasLabel.TabIndex = 0;
+            this.jugadasLabel.Text = "Has jugado XX partidas.";
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
+            this.button2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.button2.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.ForeColor = System.Drawing.Color.Transparent;
+            this.button2.Location = new System.Drawing.Point(41, 61);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(409, 40);
+            this.button2.TabIndex = 17;
+            this.button2.Text = "Eliminar mi cuenta";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Lobby
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
             this.ClientSize = new System.Drawing.Size(1269, 681);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.welcomeLabel);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -370,10 +408,14 @@
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.salaGrid)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -389,13 +431,8 @@
         private Button allBtn;
         private DataGridView salaGrid;
         private Button salirSalaBtn;
-        private Label label2;
-        private Label label3;
-        private Label label4;
         private GroupBox groupBox2;
-        private Label label5;
         private GroupBox groupBox3;
-        private Label helpLabel;
         private GroupBox groupBox4;
         private Label nowPlayingLabel;
         private Button musicControlBtn;
@@ -403,5 +440,12 @@
         private Button chatSendBtn;
         private TextBox chatTb;
         private ListBox chatBox;
+        private TextBox textBox1;
+        private TextBox helpLabel;
+        private GroupBox groupBox6;
+        private Label minutosLabel;
+        private Label ganadasLabel;
+        private Label jugadasLabel;
+        private Button button2;
     }
 }

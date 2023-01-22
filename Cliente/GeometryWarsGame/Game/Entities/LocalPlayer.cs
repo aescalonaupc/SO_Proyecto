@@ -231,9 +231,9 @@ namespace GeometryWarsGame.Game.Entities
         { 
             if (SpecatorMode)
             {
-                Player? p = (Player?)EntityManager.GetById(specId);
+                Entity? p = (Entity?)EntityManager.GetById(specId);
 
-                if (p != null)
+                if (p != null && p is Player)
                 {
                     World.SetFocusPosition(p.Position);
                 }

@@ -140,7 +140,7 @@ namespace GeometryWarsGame.Launcher
                 case 44:
                     int numJugadores = Convert.ToInt32(message[1]);
 
-                    Invoke(() =>
+                    Invoke((Delegate)(() =>
                     {
                         if (!salaGrid.Enabled)
                         {
@@ -226,7 +226,7 @@ namespace GeometryWarsGame.Launcher
                                 helpLabel.Text = "Eres el líder de la sala. Puedes invitar a más jugadores hasta un máximo de 5. Cuando estés listo, puedes empezar la partida haciendo click sobre cualquier de los tres modos de juego.\n\nSi abandonas la sala, todos los jugadores saldrán de la sala y la partida se eliminará.";
                             }
                         }
-                    });
+                    }));
                     break;
 
                 // Peticion de unirte a una sala
@@ -245,7 +245,7 @@ namespace GeometryWarsGame.Launcher
                         Shared.NetworkHandler.Send("5/" + partidaId + "/1");
                         soyLider = false;
 
-                        Invoke(() =>
+                        Invoke((Delegate)(() =>
                         {
                             allBtn.Enabled = false;
                             conectadosGrid.Columns[2].Visible = false;
@@ -253,7 +253,7 @@ namespace GeometryWarsGame.Launcher
 
                             chatBox.Items.Add("** te has unido a la sala de " + usuarioInvita + " **");
                             chatBox.Items.Add("[ chat global desactivado ]");
-                        });
+                        }));
                     }
                     else if (r == DialogResult.No)
                     {
@@ -374,7 +374,7 @@ namespace GeometryWarsGame.Launcher
         {
             Shared.NetworkHandler.Send("8/");
 
-            Invoke(() =>
+            Invoke((Delegate)(() =>
             {
                 miSala.Clear();
                 salaGrid.Rows.Clear();
@@ -383,7 +383,7 @@ namespace GeometryWarsGame.Launcher
                 helpLabel.Text = "Ahora mismo no estás en ninguna sala, espera que alguno de los jugadores te invite a la suya o invita tú a alguien.";
 
                 chatBox.Items.Add("** has abandonado la sala **");
-            });
+            }));
         }
 
         private void musicControlBtn_Click(object sender, EventArgs e)
@@ -443,6 +443,27 @@ namespace GeometryWarsGame.Launcher
             if (t.Length > 0)
             {
                 SendChatMessage(t);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            DialogResult r = MessageBox.Show("¿Estás seguro de eliminar tu cuenta? Perderás todo tu progreso y es una acción irreversible. Además, tendrás que abrir el juego de nuevo.", "Eliminar cuenta", MessageBoxButtons.YesNo);
+
+            if (r == DialogResult.Yes)
+            {
+                Shared.NetworkHandler.Send("9/");
+
+                myUsername = "";
+                myId = -1;
+                soyLider = true;
+                miSala.Clear();
+                chatBox.Items.Clear();
+                chatTb.Clear();
+                conectadosGrid.Rows.Clear();
+                salaGrid.Rows.Clear();
+
+                Close();
             }
         }
     }

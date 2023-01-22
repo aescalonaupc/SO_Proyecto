@@ -14,9 +14,10 @@ void EjecutarServidor();
 void* AtenderCliente(void* socket);
 
 int Login(char usuario[STR_SIZE], char password[STR_SIZE]);
-int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE], int edad);
+int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE]);
 void Consulta(int consulta_id, char resultadoBuff[STR_SIZE]);
 void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE]);
 int ComprobarSiYaEstaRegistrado(char usuario[STR_SIZE]);
+int EliminarUsuario(int usuarioId);
 
 #endif
