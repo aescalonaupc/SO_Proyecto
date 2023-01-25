@@ -21,6 +21,7 @@ int main (int argc, char** argv)
 	}
 	
 	printf("Ejecutando servidor...\n");
+	printf("Hora: %d\n", (unsigned)time(NULL));
 	EjecutarServidor();
 	return 0;
 }

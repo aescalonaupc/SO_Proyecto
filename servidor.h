@@ -20,4 +20,12 @@ void DameConectados(TListaConectados* lista, char respuesta[BUFFER_SIZE]);
 int ComprobarSiYaEstaRegistrado(char usuario[STR_SIZE]);
 int EliminarUsuario(int usuarioId);
 
+int CrearPartidaBd();
+void RegistrarFinPartida(int id, int duracion, int ganador);
+void RegistrarPartidaParaJugador(int jugadorId, int partidaId);
+
+int ObtenerPartidasJugador(int jugadorId);
+int ObtenerPartidasGanadasJugador(int jugadorId);
+int ObtenerMinutosJugador(int jugadorId);
+
 #endif

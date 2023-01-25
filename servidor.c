@@ -170,9 +170,21 @@ void* AtenderCliente(void* socket)
 				{
 					printf("Se ha desconectado el lider\n");
 					
-					if (empezada == 1)
+					/* EstaPartidaFinalizada == 0 para no actualizarla dos veces en bd */
+					if (empezada == 1 && 0 == EstaPartidaFinalizada(&tablaPartidas, slot))
 					{
 						// registrar partida en la base de datos...	
+						int id, duracion, ganador;
+						pthread_mutex_lock(&mutexTablaPartidas);
+						
+						id = tablaPartidas.partidas[slot].id;
+						duracion = ((unsigned)time(NULL)) - tablaPartidas.partidas[slot].tiempoInicio;
+						
+						/* se desconecta el lider, nadie gana */
+						ganador = -1;
+						
+						pthread_mutex_unlock(&mutexTablaPartidas);
+						RegistrarFinPartida(id, duracion, ganador);
 					}
 					
 					EliminaPartida(&tablaPartidas, slot);
@@ -338,7 +350,7 @@ void* AtenderCliente(void* socket)
 		// printf("Recibida una peticion de: %s\n", usuario);
 		
 		peticionEntrante[ret] = '\0';
-		printf("%s\n", peticionEntrante);
+		//printf("%s\n", peticionEntrante);
 		
 		int i = 0;
 		int j = 0;
@@ -418,7 +430,7 @@ void* AtenderCliente(void* socket)
 						/* Guardamos el usuario Id */
 						usuarioId = resultado;
 						
-						int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
+						int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn, usuarioId);
 						if (solucion == 0)
 						{
 							printf("Se ha introducido correctamente\n");
@@ -447,8 +459,6 @@ void* AtenderCliente(void* socket)
 				p = strtok(NULL, "/");
 				strcpy(password, p);
 				
-				/*p = strtok(NULL, "/");
-				edad = atoi(p);*/
 				int existeUsuario = ComprobarSiYaEstaRegistrado(usuario);
 				if (existeUsuario == 0)
 				{
@@ -460,6 +470,7 @@ void* AtenderCliente(void* socket)
 						strcpy(respuesta, "2/NOK/2");
 					} else
 					{
+						/* id en la bd del usuario */
 						resultado = Login(usuario, password);
 						
 						if (resultado < 0)
@@ -467,7 +478,7 @@ void* AtenderCliente(void* socket)
 							strcpy(respuesta, "2/NOK/2");
 						} else
 						{
-							int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn);
+							int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn, resultado);
 							if (solucion == 0)
 							{
 								notificarConectados = 1;
@@ -699,6 +710,19 @@ void* AtenderCliente(void* socket)
 				
 				DameConectados(&listaConectados,conectados);
 				sprintf(respuesta,"4/%s",conectados);
+				
+				/* tambien damos las estadisticas del jugador */
+				{
+					int jugadorId = ObtenerIdDeUsuarioConectado(&listaConectados, usuario);
+					
+					int partidas = ObtenerPartidasJugador(jugadorId);
+					int ganadas = ObtenerPartidasGanadasJugador(jugadorId);
+					int minutos = ObtenerMinutosJugador(jugadorId);
+					
+					char respuesta2[BUFFER_SIZE];
+					sprintf(respuesta2, "77/%d/%d/%d", partidas, ganadas, minutos);
+					_write(sock_conn, respuesta2, strlen(respuesta2));
+				};
 			}
 			else if (codigo == 8)
 			{
@@ -905,11 +929,47 @@ void* AtenderCliente(void* socket)
 					
 					EstablecerPartidaTipo(&tablaPartidas, slot, tipoJuego);
 					MarcarPartidaEmpezada(&tablaPartidas, slot);
+					
+					/* Creamos la partida en la base de datos */
+					int partidaId;
+					{
+						partidaId = CrearPartidaBd();
+						
+						if (partidaId >= 0)
+						{
+							pthread_mutex_lock(&mutexTablaPartidas);
+							
+							tablaPartidas.partidas[slot].id = partidaId;
+							tablaPartidas.partidas[slot].tiempoInicio = (unsigned)time(NULL);
+							
+							pthread_mutex_unlock(&mutexTablaPartidas);	
+						}
+					};
 
-					printf("Empezada partida %d tipo de juego %d\n", slot, tipoJuego);
+					printf("Empezada partida %d, id %d, tipo de juego %d\n", slot, partidaId, tipoJuego);
 					
 					int buffer[MAX_JUGADORES_PARTIDA];
 					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					
+					/* registramos la partida para los jugadores */
+					/* se podria hacer mas eficiente... pero llevo 2 semanas de fqs */
+					{
+						for (int i = 0; i < n; i++)
+						{
+							if (buffer[i] == -1)
+							{
+								continue;
+							}
+							
+							char tmp_usuario[STR_SIZE];
+							
+							if (1 == ObtenerNombreDeSocket(&listaConectados, buffer[i], tmp_usuario))
+							{
+								int tmp_uId = ObtenerIdDeUsuarioConectado(&listaConectados, tmp_usuario);
+								RegistrarPartidaParaJugador(tmp_uId, partidaId);	
+							}
+						}
+					};
 					
 					sprintf(respuesta, "7/%d", tipoJuego);
 					
@@ -1063,10 +1123,23 @@ void* AtenderCliente(void* socket)
 					p = strtok(NULL, "");
 					strcpy(ganador, p);
 					
-					// guardar bd...
-					
 					int buffer[MAX_JUGADORES_PARTIDA];
 					int n = ObtenerSocketsJugadoresPartida(&tablaPartidas, slot, buffer);
+					
+					// guardar bd...
+					{
+						int id, duracion, ganadorId;
+						pthread_mutex_lock(&mutexTablaPartidas);
+						
+						id = tablaPartidas.partidas[slot].id;
+						duracion = ((unsigned)time(NULL)) - tablaPartidas.partidas[slot].tiempoInicio;
+						ganadorId = ObtenerIdDeUsuarioConectado(&listaConectados, ganador);
+						
+						pthread_mutex_unlock(&mutexTablaPartidas);
+						RegistrarFinPartida(id, duracion, ganadorId);
+						
+						MarcarPartidaFinalizada(&tablaPartidas, slot);
+					};
 					
 					for (int i = 0; i < n; i++)
 					{
@@ -1236,7 +1309,6 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE])
 	
 	char consulta[STR_SIZE];
 	int siguiente_id;
-	char siguiente_id_str[3];
 	
 	strcpy(consulta, "select max(id) from jugador;");
 	
@@ -1250,7 +1322,7 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE])
 	resultado = mysql_store_result(mysqlConn);
 	row = mysql_fetch_row(resultado);
 	
-	if (row == NULL)
+	if (row == NULL || row[0] == NULL)
 	{
 		siguiente_id = 1;
 	} else
@@ -1258,15 +1330,7 @@ int Registrarse(char usuario[STR_SIZE], char password[STR_SIZE])
 		siguiente_id = atoi(row[0]) + 1;
 	}
 	
-	sprintf(siguiente_id_str, "%d", siguiente_id);
-	
-	strcpy(consulta, "INSERT INTO jugador VALUES (");
-	strcat(consulta, siguiente_id_str);
-	strcat(consulta,",'");
-	strcat(consulta, usuario);
-	strcat(consulta,"','");
-	strcat(consulta, password);
-	strcat(consulta,"');");
+	sprintf(consulta, "insert into jugador values(%d, '%s', '%s');", siguiente_id, usuario, password);
 	
 	err = mysql_query(mysqlConn, consulta);
 	if (err != 0)
@@ -1304,6 +1368,167 @@ int EliminarUsuario(int usuarioId)
 	}
 	
 	return 1;
+}
+
+/*
+	Crea una partida en la base de datos y devuelve su Id,
+	devuelve -1 en caso de error
+*/
+int CrearPartidaBd()
+{
+	MYSQL_RES* resultado;
+	MYSQL_ROW row;
+	int err;
+	
+	char consulta[STR_SIZE];
+	int siguiente_id;
+	
+	/* Obtenemos la id que se utilizara */
+	strcpy(consulta, "select max(id) from partida;");
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		return -1;
+	}
+	
+	resultado = mysql_store_result(mysqlConn);
+	row = mysql_fetch_row(resultado);
+	
+	if (row == NULL || row[0] == NULL)
+	{
+		siguiente_id = 1;
+	} else
+	{
+		siguiente_id = atoi(row[0]) + 1;
+	}
+	
+	sprintf(consulta, "insert into partida(id, nombre) values(%d, 'Partida %d');", siguiente_id, siguiente_id);
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		return -1;
+	}
+	
+	return siguiente_id;
+}
+
+/*
+	Registra el fin de una partida de la base de datos, id es la id de la partida
+	en la BD, duracion es la duracion en segundos, ganador es la id del jugador
+	que ha ganado
+*/
+void RegistrarFinPartida(int id, int duracion, int ganador)
+{
+	char consulta[STR_SIZE];
+	sprintf(consulta, "update partida set duracion = %d, ganador = %d where id = %d", duracion, ganador, id);
+	
+	mysql_query(mysqlConn, consulta);
+}
+
+/*
+	Registra en la Bd que el jugador indicado ha jugado a la partida indicada
+*/
+void RegistrarPartidaParaJugador(int jugadorId, int partidaId)
+{
+	char consulta[STR_SIZE];
+	sprintf(consulta, "insert into partidas_jugadas(partida_id, jugador_id) values(%d, %d);", partidaId, jugadorId);
+	
+	mysql_query(mysqlConn, consulta);
+}
+
+/*
+	Devuelve el numero de partidas jugadas por un jugador
+*/
+int ObtenerPartidasJugador(int jugadorId)
+{
+	MYSQL_RES* resultado;
+	MYSQL_ROW row;
+	int err;
+	
+	char consulta[STR_SIZE];
+	
+	sprintf(consulta, "select count(partida_id) from partidas_jugadas where jugador_id = %d;", jugadorId);
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		return -1;
+	}
+	
+	resultado = mysql_store_result(mysqlConn);
+	row = mysql_fetch_row(resultado);
+	
+	if (row == NULL || row[0] == NULL)
+	{
+		return 0;
+	} else
+	{
+		return atoi(row[0]);
+	}
+}
+
+/*
+	Devuelve el numero de partidas ganadas de un jugador
+*/
+int ObtenerPartidasGanadasJugador(int jugadorId)
+{
+	MYSQL_RES* resultado;
+	MYSQL_ROW row;
+	int err;
+	
+	char consulta[STR_SIZE];
+	
+	sprintf(consulta, "select count(id) from partida where ganador = %d;", jugadorId);
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		return -1;
+	}
+	
+	resultado = mysql_store_result(mysqlConn);
+	row = mysql_fetch_row(resultado);
+	
+	if (row == NULL || row[0] == NULL)
+	{
+		return 0;
+	} else
+	{
+		return atoi(row[0]);
+	}
+}
+
+/*
+	Devuelve los minutos jugados de un jugador
+*/
+int ObtenerMinutosJugador(int jugadorId)
+{
+	MYSQL_RES* resultado;
+	MYSQL_ROW row;
+	int err;
+	
+	char consulta[STR_SIZE];
+	
+	sprintf(consulta, "select sum(partida.duracion) from (partida, partidas_jugadas) where partida.id = partidas_jugadas.partida_id and partidas_jugadas.jugador_id = %d;", jugadorId);
+	
+	err = mysql_query(mysqlConn, consulta);
+	if (err != 0)
+	{
+		return -1;
+	}
+	
+	resultado = mysql_store_result(mysqlConn);
+	row = mysql_fetch_row(resultado);
+	
+	if (row == NULL || row[0] == NULL)
+	{
+		return 0;
+	} else
+	{
+		return atoi(row[0]) / 60;
+	}
 }
 
 /*

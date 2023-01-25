@@ -6,7 +6,13 @@
 
 /* Representa una persona conectada en el servidor */
 typedef struct {
+	/* Nombre del usuario */
 	char nombre[STR_SIZE];
+	
+	/* Id en la base de datos */
+	int id;
+	
+	/* Socket para comunicarnos */
 	int socket;
 	
 	/* 0 = Default, 1 = Invitacion pendiente, 2 = En sala, 3 = Jugando */
@@ -36,6 +42,9 @@ typedef struct {
 	/* Id de la partida en la base de datos */
 	int id;
 	
+	/* Referencia temporal cuando empezo la partida, para saber la duracion */
+	int tiempoInicio;
+	
 	/* Lista de jugadores en la partida */
 	TListaJugadores jugadores;
 	
@@ -50,6 +59,9 @@ typedef struct {
 	
 	/* Modo de juego de la partida, 0 = sandbox, 1 = AvA, 2 = Coop */
 	int tipo;
+	
+	/* 1 si la partida ya ha sido finalizada, 0 si aun no */
+	int finalizada;
 } TPartida;
 
 /* Representa todas las partidas del servidor */
@@ -63,7 +75,7 @@ pthread_mutex_t mutexListaConectados;
 /* Mutex de la tabla de partidas */
 pthread_mutex_t mutexTablaPartidas;
 
-int IntroduceConectado(TListaConectados* lista, char nombre[STR_SIZE], int socket);
+int IntroduceConectado(TListaConectados* lista, char nombre[STR_SIZE], int socket, int id);
 int EliminaConectado(TListaConectados* lista, char nombre[STR_SIZE]);
 int DamePos(TListaConectados* lista, char nombre[STR_SIZE]);
 int DamePosSocket(TListaConectados* lista, int socket);
@@ -73,6 +85,7 @@ void EstablecerEstadoConectado(TListaConectados* lista, int socket, int estado);
 int ObtenerEstadoConectado(TListaConectados* lista, int socket);
 int ObtenerNombreDeSocket(TListaConectados* lista, int socket, char nombre[STR_SIZE]);
 int DameSocketsConectados(TListaConectados* lista, int buffer[MAX_CONECTADOS]);
+int ObtenerIdDeUsuarioConectado(TListaConectados* lista, char usuario[STR_SIZE]);
 
 int IntroducePartida(TTablaPartidas* tabla);
 int IntroduceJugadorEnPartida(TTablaPartidas* tabla, int slot, int socket);
@@ -89,5 +102,7 @@ void EstablecerPartidaId(TTablaPartidas* tabla, int slot, int id);
 void EstablecerPartidaLider(TTablaPartidas* tabla, int slot, int socket);
 void EstablecerPartidaTipo(TTablaPartidas* tabla, int slot, int tipo);
 int ObtenerLiderPartida(TTablaPartidas* tabla, int slot);
+int EstaPartidaFinalizada(TTablaPartidas* tabla, int slot);
+void MarcarPartidaFinalizada(TTablaPartidas* tabla, int slot);
 
 #endif

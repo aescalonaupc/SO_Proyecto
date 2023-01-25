@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define DEV 1
+//#define DEV 1
 
 // Tamaño en caracteres de un string
 #define STR_SIZE 256
@@ -15,7 +15,7 @@
 #define NETWORK_BUFFER_SIZE 8192
 
 // Puerto en que escuchara conexiones el servidor
-#define PUERTO 5059
+#define PUERTO 50059
 
 // Maximo numero de jugadores conectados
 #define MAX_CONECTADOS 100

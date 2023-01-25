@@ -273,6 +273,21 @@ namespace GeometryWarsGame.Launcher
                     });
                     break;
 
+                // Recibimos las estadisticas del jugador
+                // Formato: 77/<partidas jugadas>/<partidas ganadas>/<minutos jugados>
+                case 77:
+                    int jugadas = Convert.ToInt32(message[1]);
+                    int ganadas = Convert.ToInt32(message[2]);
+                    int minutos = Convert.ToInt32(message[3]);
+
+                    Invoke(() =>
+                    {
+                        jugadasLabel.Text = jugadasLabel.Text.Replace("XX", jugadas.ToString());
+                        ganadasLabel.Text = ganadasLabel.Text.Replace("XX", ganadas.ToString());
+                        minutosLabel.Text = minutosLabel.Text.Replace("XXXX", minutos.ToString());
+                    });
+                    break;
+
                 // Mensaje de chat
                 // Formato: 8/<autor>/<mensaje>
                 case 8:
@@ -309,7 +324,7 @@ namespace GeometryWarsGame.Launcher
         {
             Shared.NetworkHandler.OnNetworkMessage += OnNetworkMessage;
 
-            welcomeLabel.Text = welcomeLabel.Text.Replace("{usuario}", myUsername + " (" + myId + ")");
+            welcomeLabel.Text = welcomeLabel.Text.Replace("{usuario}", myUsername);
             Shared.NetworkHandler.Send("7/");
         }
 

@@ -77,13 +77,14 @@ int ObtenerNombreDeSocket(TListaConectados* lista, int socket, char nombre[STR_S
 	Introduce un usuario y socket en la lista de conectados, devuelve 0 si
 	no es posible, 1 en caso de exito
 */
-int IntroduceConectado(TListaConectados* lista, char nombre[STR_SIZE], int socket)
+int IntroduceConectado(TListaConectados* lista, char nombre[STR_SIZE], int socket, int id)
 {
 	pthread_mutex_lock(&mutexListaConectados);
 	int posicion = lista->num;
 	
 	if (posicion < MAX_CONECTADOS)
 	{
+		lista->conectados[posicion].id = id;
 		strcpy(lista->conectados[posicion].nombre, nombre);
 		lista->conectados[posicion].socket = socket;
 		lista->conectados[posicion].estado = 0;
@@ -115,6 +116,7 @@ int EliminaConectado(TListaConectados* lista, char nombre[STR_SIZE])
 		int i;
 		for (i=pos; i < lista->num-1; i++)
 		{
+			lista->conectados[i].id = lista->conectados[i + 1].id;
 			strcpy(lista->conectados[i].nombre, lista->conectados[i + 1].nombre);
 			lista->conectados[i].socket = lista->conectados[i + 1].socket;
 			lista->conectados[i].estado = lista->conectados[i + 1].estado;
@@ -189,6 +191,7 @@ int IntroducePartida(TTablaPartidas* tabla)
 	{
 		tabla->partidas[partidaSlot].creada = 1;
 		tabla->partidas[partidaSlot].empezada = 0;
+		tabla->partidas[partidaSlot].finalizada = 0;
 		
 		tabla->partidas[partidaSlot].id = -1;
 		tabla->partidas[partidaSlot].lider = -1;
@@ -277,6 +280,43 @@ int ObtenerLiderPartida(TTablaPartidas* tabla, int slot)
 	socket = tabla->partidas[slot].lider;
 	pthread_mutex_unlock(&mutexTablaPartidas);
 	return socket;
+}
+
+/*
+	Devuelve 1 si la partida ya ha finalizado, 0 si no
+*/
+int EstaPartidaFinalizada(TTablaPartidas* tabla, int slot)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return 0;
+	}
+	
+	int finalizada = 0;
+	pthread_mutex_lock(&mutexTablaPartidas);
+	
+	if (tabla->partidas[slot].creada == 1 && tabla->partidas[slot].finalizada == 1)
+	{
+		finalizada = 1;
+	}
+	
+	pthread_mutex_unlock(&mutexTablaPartidas);
+	return finalizada;
+}
+
+/*
+	Marca una partida como finalizada
+*/
+void MarcarPartidaFinalizada(TTablaPartidas* tabla, int slot)
+{
+	if (slot >= MAX_PARTIDAS)
+	{
+		return;
+	}
+	
+	pthread_mutex_lock(&mutexTablaPartidas);
+	tabla->partidas[slot].finalizada = 1;
+	pthread_mutex_unlock(&mutexTablaPartidas);
 }
 
 /*
@@ -589,6 +629,28 @@ int DameSocketsConectados(TListaConectados* lista, int buffer[MAX_CONECTADOS])
 	
 	pthread_mutex_unlock(&mutexListaConectados);
 	return lista->num;
+}
+
+/*
+	Devuelve la Id de la base de datos de un usuario en base a su nombre de usuario,
+	devuelve -1 en caso de no existir
+*/
+int ObtenerIdDeUsuarioConectado(TListaConectados* lista, char usuario[STR_SIZE])
+{
+	int i = 0;
+	pthread_mutex_lock(&mutexListaConectados);
+	while (i < lista->num)
+	{
+		if (strcmp(lista->conectados[i].nombre, usuario) == 0)
+		{
+			pthread_mutex_unlock(&mutexListaConectados);
+			return lista->conectados[i].id;
+		}
+		i++;
+	}
+	
+	pthread_mutex_unlock(&mutexListaConectados);
+	return -1;
 }
 
 /*
