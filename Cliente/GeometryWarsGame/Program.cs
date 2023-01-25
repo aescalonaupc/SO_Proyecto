@@ -1,4 +1,4 @@
-//#define USE_SHIVA
+#define USE_SHIVA
 using System.Net.Sockets;
 
 namespace GeometryWarsGame
