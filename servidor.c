@@ -449,9 +449,7 @@ void* AtenderCliente(void* socket)
 			}
 			else if (codigo == 2)
 			{
-				char usuario[STR_SIZE];
 				char password[STR_SIZE];
-				//int edad;
 				
 				p = strtok(NULL, "/");
 				strcpy(usuario, p);
@@ -478,6 +476,9 @@ void* AtenderCliente(void* socket)
 							strcpy(respuesta, "2/NOK/2");
 						} else
 						{
+							/* Guardamos el usuario Id */
+							usuarioId = resultado;
+							
 							int solucion = IntroduceConectado(&listaConectados, usuario, sock_conn, resultado);
 							if (solucion == 0)
 							{
@@ -890,6 +891,26 @@ void* AtenderCliente(void* socket)
 						}
 					}
 					
+					// Debemos manejarlo aqui porque no llegara al final del bucle
+					// dado el continue;
+					{
+						char conectados[BUFFER_SIZE];
+						strcpy(conectados, "");
+						
+						DameConectados(&listaConectados,conectados);
+						sprintf(respuesta,"4/%s",conectados);
+						
+						printf("Se envia la nueva lista de conectados: %s\n", respuesta);
+						
+						pthread_mutex_lock(&mutexListaConectados);
+						for (int i = 0, socket = 0; i < listaConectados.num; i++)
+						{
+							socket = listaConectados.conectados[i].socket;
+							_write(socket, respuesta, strlen(respuesta));
+						}
+						pthread_mutex_unlock(&mutexListaConectados);
+					};
+						
 					acabado = 1;
 					continue;
 				}
