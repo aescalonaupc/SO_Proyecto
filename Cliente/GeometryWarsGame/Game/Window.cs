@@ -556,6 +556,9 @@ namespace GeometryWarsGame.Game
                 introPb.SizeMode = PictureBoxSizeMode.StretchImage;
                 introPb.Visible = true;
 
+                System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
+                timer1.Interval = 3000;
+
                 timer1.Tick += (object? sender, EventArgs e) =>
                 {
                     introPb.Visible = false;
@@ -564,7 +567,6 @@ namespace GeometryWarsGame.Game
                     Controls.Remove(introPb);
 
                     timer1.Stop();
-                    timer1.Enabled = false;
                     timer1.Dispose();
 
                     gameThread = new Thread(GameLoop);
@@ -572,6 +574,8 @@ namespace GeometryWarsGame.Game
                     gameThread.IsBackground = true;
                     gameThread.Start();
                 };
+
+                timer1.Start();
             });
         }
 

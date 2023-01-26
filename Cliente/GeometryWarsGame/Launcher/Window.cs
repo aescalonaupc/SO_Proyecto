@@ -150,7 +150,11 @@ namespace GeometryWarsGame.Launcher
             registerForm = new Register();
             Hide();
             registerForm.ShowDialog();
-            Show();
+
+            try
+            {
+                Show();
+            } catch (Exception) { }
         }
 
         private void Window_FormClosing(object sender, FormClosingEventArgs e)
