@@ -224,22 +224,25 @@ namespace GeometryWarsGame.Game
             // We use this fraction of time to execute queued thread safe actions
             Application.Idle += (object? _, EventArgs _) =>
             {
-                while (0 == PeekMessage(out _, IntPtr.Zero, 0, 0, 0))
+                if (gameThread != null && gameThread.IsAlive)
                 {
-                    while (!UIThreadSafeActions.IsEmpty)
+                    while (0 == PeekMessage(out _, IntPtr.Zero, 0, 0, 0))
                     {
-                        if (UIThreadSafeActions.TryDequeue(out Action? a))
+                        while (!UIThreadSafeActions.IsEmpty)
+                        {
+                            if (UIThreadSafeActions.TryDequeue(out Action? a))
+                            {
+                                a();
+                            }
+                        }
+
+                        foreach (Action a in UIThreadSafeUniqueActions.Values)
                         {
                             a();
                         }
-                    }
 
-                    foreach (Action a in UIThreadSafeUniqueActions.Values)
-                    {
-                        a();
+                        UIThreadSafeUniqueActions.Clear();
                     }
-
-                    UIThreadSafeUniqueActions.Clear();
                 }
             };
 
@@ -550,7 +553,7 @@ namespace GeometryWarsGame.Game
             //while (!SoundManager.IsPlayerReady()) ;
 
             // Show splash anim
-            Window.CallUIThread(() =>
+            BeginInvoke(() =>
             {
                 introPb.Dock = DockStyle.Fill;
                 introPb.SizeMode = PictureBoxSizeMode.StretchImage;
