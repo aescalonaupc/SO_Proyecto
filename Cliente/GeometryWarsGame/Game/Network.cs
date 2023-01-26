@@ -86,9 +86,9 @@ namespace GeometryWarsGame.Game
                             }
 
                             // Si la entidad ya existe, no la creamos
-                            Player? e = (Player?)EntityManager.GetById(id);
+                            Entity? e = EntityManager.GetById(id);
 
-                            if (e != null)
+                            if (e != null && e is Player)
                             {
                                 e.Spawn();
                                 return;
@@ -120,12 +120,14 @@ namespace GeometryWarsGame.Game
 
                         Window.CallThreaded(() =>
                         {
-                            Player? p = (Player?)EntityManager.GetById(id);
+                            Entity? e = EntityManager.GetById(id);
 
-                            if (p == null)
+                            if (e == null || e is not Player)
                             {
                                 return;
                             }
+
+                            Player p = (Player)e;
 
                             p.Heading = heading;
                             p.Position.X = x;
