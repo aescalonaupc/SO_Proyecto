@@ -124,6 +124,12 @@ namespace GeometryWarsGame.Launcher
             string user = userTb.Text.Trim();
             string password = passTb.Text.Trim();
 
+            if (user.Length <= 0 || password.Length <= 0)
+            {
+                MessageBox.Show("Debes rellenar todos los campos.");
+                return;
+            }
+
             if (user.Length > 255 || password.Length > 255)
             {
                 MessageBox.Show("Máxima longitud usuario/contraseña de 255 caracteres.");
