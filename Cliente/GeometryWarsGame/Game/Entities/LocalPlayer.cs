@@ -215,7 +215,7 @@ namespace GeometryWarsGame.Game.Entities
                     {
                         specId = id;
 
-                        NotificationManager.Notify("Spectating " + ((Player)EntityManager.GetById(specId)!).Name, 3);
+                        NotificationManager.Notify("Observando " + ((Player)EntityManager.GetById(specId)!).Name, 3);
                         Thread.Sleep(7_000);
                     }
                 }
