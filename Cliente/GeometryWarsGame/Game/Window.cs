@@ -552,33 +552,38 @@ namespace GeometryWarsGame.Game
             // It's ok, just wait few ms
             //while (!SoundManager.IsPlayerReady()) ;
 
+            gameThread = new Thread(GameLoop);
+            gameThread.Priority = ThreadPriority.Highest;
+            gameThread.IsBackground = true;
+            gameThread.Start();
+
             // Show splash anim
             BeginInvoke(() =>
             {
-                introPb.Dock = DockStyle.Fill;
-                introPb.SizeMode = PictureBoxSizeMode.StretchImage;
-                introPb.Visible = true;
+                //introPb.Dock = DockStyle.Fill;
+                //introPb.SizeMode = PictureBoxSizeMode.StretchImage;
+                //introPb.Visible = true;
 
-                System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
-                timer1.Interval = 3000;
+                //System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
+                //timer1.Interval = 3000;
 
-                timer1.Tick += (object? sender, EventArgs e) =>
-                {
-                    introPb.Visible = false;
-                    introPb.Image.Dispose();
-                    introPb.Dispose();
-                    Controls.Remove(introPb);
+                //timer1.Tick += (object? sender, EventArgs e) =>
+                //{
+                //    introPb.Visible = false;
+                //    introPb.Image.Dispose();
+                //    introPb.Dispose();
+                //    Controls.Remove(introPb);
 
-                    timer1.Stop();
-                    timer1.Dispose();
+                //    timer1.Stop();
+                //    timer1.Dispose();
 
-                    gameThread = new Thread(GameLoop);
-                    gameThread.Priority = ThreadPriority.Highest;
-                    gameThread.IsBackground = true;
-                    gameThread.Start();
-                };
+                //    gameThread = new Thread(GameLoop);
+                //    gameThread.Priority = ThreadPriority.Highest;
+                //    gameThread.IsBackground = true;
+                //    gameThread.Start();
+                //};
 
-                timer1.Start();
+                //timer1.Start();
             });
         }
 
